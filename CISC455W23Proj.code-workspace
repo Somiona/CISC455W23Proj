@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"name": "Root Dir"
+		},
+		{
+			"path": "./backend",
+			"name": "/backend - Flask"
+		},
+		{
+			"path": "./frontend",
+			"name": "/frontend - Freshjs"
+		}
+	],
+	"settings": {},
+	"extensions": {
+		"recommendations": [
+			"denoland.vscode-deno",
+			"sastan.twind-intellisense",
+			"hediet.vscode-drawio"
+		]
+	}
+}
