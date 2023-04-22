@@ -11,10 +11,12 @@ Components needed:
 - Environment Selection (Survivor Selection)
 - Termination Condition
 
+**For simplicity, each generation is a time unit (tu)**
+
 ## Representation of Individual
 In this simulation, individual are investors in the stock market. Each individual will be an object from class Investor
-The following are the 7 properties (+1 bonus) each individual will have:
-- ID
+The following are the 9 properties + 1 (bonus) each individual will have:
+- Name
 - Wallet
 - ANN model
 - Emotion resiliency
@@ -23,6 +25,7 @@ The following are the 7 properties (+1 bonus) each individual will have:
 - Death age
 - Shares_hold
 - Journal entry
+- History (Bonus)
 
 ### Wallet
 It represents the liquid asset an individual has currently. 
@@ -33,7 +36,7 @@ It represents the liquid asset an individual has currently.
 ### ANN model
 It represents the "thinking" of each individual
 
-- Input is previous 30 (time unit) stock price of each stock
+- Input is previous 30 (tu) stock price of each stock
 - Output value $\in [-1, 1]$
 - There are 5 layers: 
 	- Input Layer (30 neurons)
@@ -44,19 +47,17 @@ It represents the "thinking" of each individual
 	- Output Layer (1 neurons, 5x1 mapping)
 
 The current structure of the ANN model (mapping is wrong) is as follow:
-![[ann_struct.png]]
+![[ann_struct.svg]]
 image generated from [website](http://alexlenail.me/NN-SVG/index.html) 
 ![[ann_struct1.png]]
-- There are in total of 451 variables for this ANN model
+- There are in total of 381 variables for this ANN model
 	- Input Layer (30 weights + 30 bias = 60 variables)
-	- 1st Hidden Layer (30x10=300 weights + 10 bias = 310 variables)
-	- 2nd Hidden Layer (10 weights + 10 bias = 20 variables)
-	- 3rd Hidden Layer (10x5=50 weights + 5 bias = 55 variables)
-	- Output Layer (5 weights + 1 bias = 6 variables)
+	- Hidden Layer (30x10=300 weights + 10 bias = 310 variables)
+	- Output Layer (10 weights + 1 bias = 11 variables)
 
 - For activation function (subject to change):
-	- Use **ReLu** ($f(x)=max(0,x)$) for Input Layer, 1st, 2nd Hidden Layer 
-	- Use **Tanh** ($f(x)=\frac{e^x - e^{-x}}{e^x + e^{-x}}$) for the 3rd Hidden Layer and Output Layer
+	- Use **ReLu** ($f(x)=max(0,x)$) for Input Layer, Hidden Layer 
+	- Use **Tanh** ($f(x)=\frac{e^x - e^{-x}}{e^x + e^{-x}}$) for the Output Layer
 
 ### Emotion resiliency
 It represents the desire to purchase/sell the stocks.
@@ -70,7 +71,7 @@ It is a boundary value for each individual to decide which one of the following 
 
 ### Action
 It represents the action each individual will perform in this generation
--  **k** action per generation where [k](#hyperparameters) is a hyperparameter
+-  **k** action per generation where [[Implemented Architecture#Hyperparameters|k]] is a hyperparameter
 - Type(Action) = \[Encode: Integer, (Stock: String, Price: Floating point), Transaction: Boolean\]
 - Action (With encoding):
 	- 0 -> Hold (Do nothing for this generation)
@@ -97,13 +98,15 @@ The amount of stocks each individual holds
 	- {"stock": \[\[First bought stock price, Fail to sell counter\]\]}
 
 ### Journal entry
-It represents the entire transaction (action) history of each individual throughout the entire simulation
+It represents the entire transaction (action) history of each individual throughout the entire simulation. It records the entire history of wallet, transactions, shares_hold changes.
 
-- Type(Journal entry): \[\[\[Action, ("Stock", Price), Transaction status\] x [k](#hyperparameters)\]\]
+- Type(Journal entry): \[\[\[Action, ("Stock", Price), Transaction status\] x [[Implemented Architecture#Hyperparameters|k]]\]\]
 - Transaction status would be: Success (True), Failed (False)
 - 1st layer Index represents the i-th generation
 - 2nd layer Index represents which j-th action inside i-th generation
 
+### History (Bonus)
+It will record the entire history of emotion resiliency, ANN, actions.
 
 ## Decide Action Phrase
 ![[decide_action.png]]
@@ -116,9 +119,9 @@ The following graph show how each individual decide the action:
 - Individual will perform 
 	- Hold if ANN output value $\le$ | emotion resiliency |
 	- Buy if ANN output value > emotion resiliency
-		- Buy Stocks with price that are lesser than $(1+|ANN\ output|) \times \;average\; of \;previous\; 30\; (time unit)\; stock\; price$
+		- Buy Stocks with price that are lesser than $(1+|ANN\ output|) \times \;average\; of \;previous\; 30\; (tu)\; stock\; price$
 	- Sell if ANN output value < -emotion resiliency
-		- Sell Stocks with price $[(1+|ANN output|) \times  average\; of \;previous\; 30\; (time unit)\; stock\; price] \times (1-fail\;to\;sell\;counter/10)$
+		- Sell Stocks with price $[(1+|ANN output|) \times  average\; of \;previous\; 30\; (tu)\; stock\; price] \times (1-fail\;to\;sell\;counter/10)$
 		- where fail to sell counter starts at 0 and will increment by 1 each generation if no other individual purchase the stock.
 		- If sell successfully, that stock's fail to sell counter reset to 0
 
@@ -130,7 +133,7 @@ The following are the steps it run go through:
 2. Intraday trading
 3. Update this generation current stocks price
 4. Reset action
-5. Repeat 1-4 [k](#hyperparameters) times
+5. Repeat step 1-4 [[Implemented Architecture#Hyperparameters|k]] times
 6. Record this generation stocks closing price
 
 ### Action decide
@@ -183,7 +186,7 @@ $Current\;Stock\;Price = \frac{\sum_{s=1} ^{S} Success\;Transaction\;Seller's\;P
 - n is the total share amounts of the stock which is fixed when initialization (we are ignoring that the company will expand market share (bonus?))
 - S is the total number of success transaction in **1** intraday trading round
 - Current Stock Price in the numerator is actually the previous round of stock price which is then being updated
-- We will only record the stock price after all [k](#hyperparameters) rounds are finished
+- We will only record the stock price after all [[Implemented Architecture#Hyperparameters|k]] rounds are finished
 
 
 ##  Global variables
@@ -217,11 +220,25 @@ Things that need to be initialized :
 - Stock market
 
 ### Individual Initialization
-
+It will initialize every individual's properties value:
+- name (it will be number sadly)
+- wallet ([[Implemented Architecture#Hyperparameters|ini_wallet]])
+- ANN (every weight and bias is random number from standard normal distribution)
+- emotional resiliency ([[Implemented Architecture#Hyperparameters|ini_emo]])
+- current age (everyone is 1)
+- death age (ini_death)
+- shares_hold (check below Stock Market Initialization)
 
 ### Stock Market Initialization
-It will initialize the amount of company stocks the user want to produce for the simulation.
+It will initialize the stock market based on the user's input
 
+For each stock, it will process 3 steps:
+1. Generate 30 (tu) ([[Implemented Architecture#Magic parameters|trend_length]]) of stock price with Normal[[Implemented Architecture#Magic parameters|(p_stock_mean, p_stock_sd)]]
+2. Generate the given amount of shares ([[Implemented Architecture#Hyperparameters|sh_amount]]) with price Normal(30th tu of stock price, [[Implemented Architecture#Magic parameters|p_share_sd]])
+3. Update the 30th (tu) stock price with average of shares price
+4. shares assign to individuals
+
+#### Step 3
 Theoretically, there are *2* types of individuals holding the stock:
 - Shares Directors
 	- Directors
@@ -242,7 +259,7 @@ In concept, there are 2 stages for stock to initialize:
 
 (**shares amount have to be an integer and is recommended to be divisible by 10**)
 
-#### Early Stage
+##### Early Stage
 a group of individuals which are the Shares Directors holds 80% of the shares amount, 20% random split to Normal Investors.
 
 Shares Directors' shares distribution (weight is amount of shares they should hold and number is the number of roles that should exists $\frac{role's\;value}{total\; of\;role's\;value = 10}$):
@@ -253,7 +270,7 @@ Shares Directors' shares distribution (weight is amount of shares they should ho
 Default Setting:
 Average startup company equity can be considered as $100k, and share amount is 100, thus stock price begins at $100/share
 
-#### General Stage
+##### General Stage
 Generally this is considered post [Series C](https://www.fundz.net/what-is-series-a-funding-series-b-funding-and-more#series-c-funding-2022) of the company, and normally Shares Directors hold **30%** (employees hold 10%, the rest holds 20% [Nasdaq 20 Rule](https://content.next.westlaw.com/practical-law/document/Ibb0a3b6eef0511e28578f7ccc38dcbee/Nasdaq-20-Rule-Stockholder-Approval-Requirements-for-Securities-Offerings?viewType=FullText&originationContext=document&transitionType=DocumentItem&ppcid=0ec041e545d5467096891add2f86ba60&contextData=(sc.DocLink)#:~:text=For%20purposes%20of%20this%20rule,be%20the%20largest%20ownership%20position.) which is Nasdaq generally finds a change of control where an issuance: *Causes a stockholder or stockholder group to own or have the right to acquire 20% or more of the outstanding shares of common stock or voting power*. This ownership or voting power would be the largest ownership position.), 
 
 Shares Directors' shares distribution (weight is amount of shares they should hold and number is the number of roles that should exists $\frac{role's\;value}{total\; of\;role's\;value = 10}$):
@@ -307,24 +324,32 @@ As we are introducing a new individual with assets appear out of thin air into t
 For multi-pointer selection, we decide to first rank individuals' assets into 5 classes: low, med-low, medium, med-high, high. Second, based on the pointes, we will random select individuals from the classes.
 
 ## Mutation Transformation
-For mutation, we have planned out 3 types of mutation: absolute, periodic, and probabilistic.
+For mutation, we have planned out 3 types of mutation: conditional, periodic, and probabilistic.
 
-For each generation, it will run through a series of mutation and we called it a mutation transformation phrase.
+For each generation, it will run through a series of mutation and we called it a mutation transformation phrase. (order does not matter)
 
 Users can decide which mutation will be include inside the series.
 
-### Absolute Mutation
-It is a mutation that has a 100% chance to happen for each generation.
+### Conditional Mutation
+It is a mutation that has a 100% chance to happen for each generation if the individual satisfies the condition.
 
-The following are a list of absolute mutation that we come up with (bracket indicate what properties are being affected):
-- Emotional Damage (emotional resiliency)
-- Emotion Okay Lah (emotional resiliency)
+The following are a list of conditional mutation that we come up with condition (bracket indicate what properties are being affected):
+
+- If this round's action is hold:
+	- Emotional Damage (emotional resiliency)
+- else (buy/sell):
+	- Emotion Okay Lah (emotional resiliency)
 
 #### Emotional Damage
 a mutation emphasizing towards the "decrease" of emotion resiliency 
+- 
+- bounded between \[0,1\] if value exceed
 
 #### Emotion Okay Lah
 a mutation emphasizing towards the "increase" of emotion resiliency
+- 
+- bounded between \[0,1\] if value exceed
+
 
 ### Periodic Mutation
 It is a mutation that will occur periodically (every \#n generation)
@@ -334,6 +359,21 @@ The following are a list of periodic mutation that we come up with (bracket indi
 - pay for survival (wallet, emotion resiliency)
 - continuous learning (ANN model)
 
+#### Get Salary
+A mutation that will increase wallet amount and lower emotion resiliency ("Let's spent money!")
+- A 1-to-1 negative correlation: the higher in wallet amount, the lower in emotion resiliency
+
+$emotion \; resiliency = emotion \; resiliency \times (1 - \frac{gain}{wallet})$
+
+#### Pay for survival
+A mutation that will decrease wallet amount and raise emotion resiliency ("Pay utilities, food, Insurance...etc.")
+- a 1-to-1 negative correlation: the lower in wallet amount, the higher in emotion resiliency
+
+$emotion \; resiliency = emotion \; resiliency \times (1 + \frac{loss}{wallet})$
+
+#### Continuous learning
+A mutation that will modify a random neuron's weight in the ANN model based on the current best individual ("Learn from rich people!")
+- clone one random weight from the individual with highest fitness value
 
 
 ### Probabilistic Mutation
@@ -342,6 +382,25 @@ It is the default setting of mutation where there is a probability to determine 
 The following are a list of probabilistic mutation that we come up with (bracket indicate what properties are being affected):
 - maybe I should change (ANN model)
 - life is uncertain (wallet, emotion resiliency, ANN, shares hold)
+
+#### Maybe I should change
+A mutation that will add a Norm(0, $\sigma$) value to (1 or 2 or ... or up to all weights) of an individual's ANN model
+
+#### Life is uncertain
+A mutation that represent the uncertainty of events that could be happen in the real life (example: get sick, win lottery, meet a new friend and gives some advice, a gift from friends... etc)
+
+a single point on a wheel with equal (uniform) probability for selecting wallet, emotion resiliency, ANN, shares hold to modify
+
+- Wallet
+	- Update with a Norm(0, $\sigma$) value
+- emotion resiliency
+	- Update with a Norm(0, $\sigma$) value ($\sigma \leqslant \frac{1}{3}$)
+	- apply thresholds so that stay in boundary \[0,1\] 
+- ANN
+	- add a single weight with a Norm(0, $sigma$) value
+- Shares hold
+	- random select a stock and it's fail to sell counter will be randomized between \[0,10\]
+	- if the person has no shares, do nothing
 
 
 ## Recombination Transformation
@@ -357,8 +416,26 @@ Also, for recombination functions, there should be 3 levels: crossover, group re
 It is a recombination that has a 100% chance to happen for each generation.
 
 The following are a list of absolute recombination that we come up with (inside bracket indicate the level and what properties are being affected):
-- sharing is caring (crossover: wallet, ANN, shares_hold)
-- new investors (group: wallet, ANN, shares_hold)
+- teach me something bro (crossover: wallet, ANN)
+- new investors (group: wallet, ANN)
+
+#### Teach me something bro
+It is a crossover that "balance" $\alpha\%$ of the entire ANN of two individuals and the the "fitter" individual will receive a $\beta\%$ of wallet from the other individual.
+- idea comes from a Chinese proverb "近朱者赤，近墨者黑" (One takes the behaviour of one's company.)
+- $\alpha \in [0,1], \; \beta \in [0,0.5]$
+
+1. Compare and decide which individual is less fitter
+the less fitter (learner) will learn from the better individual
+2. learn distance = $fitter's \; ANN - learner's \; ANN$ 
+3. learner's ANN += $\alpha \times learn\;distance$
+4. fitter's ANN += $\frac{(1-\alpha)}{2} \times (-learn\;distance)$
+5. thank you money = learner $\times \beta$
+6. learner's wallet -= thank you money
+7. fitter's wallet += thank you money
+
+#### new investors
+It is a conditional group recombination, it happens when some individual(s) reach their death age and the simulation need to introduce new investor(s) to maintain the fixed size of population.
+
 
 ### Periodic Recombination
 It is a recombination that will occur periodically (every \#n generation)
@@ -384,12 +461,10 @@ There are several ways to deal with "dead" individuals' assets:
 - uniform distribution (uniform distribute to every individual)
 - lucky guy (an individual will inherit all the asset)
 
+Every individual's current age will +=1
+
 ## Termination Condition
 For termination condition, it's either reach the generation number or pause anytime (since we are updating the progress per generation) or when every individual halt (hold for more than 3 generations)
-
-## Helper function
-The following are helper functions that might be used in any parts of the EA algorithm:
-- Random shuffle
 
 
 ## Related to

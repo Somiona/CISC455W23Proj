@@ -18,7 +18,15 @@ The following are classes used inside the project:
 It is a **1** unit of share of a stock
 
 Properties:
-- 
+- ID
+- Stock Name
+- Price
+- Owner
+- Owner History
+
+#### ID
+Starts with 0
+
 
 Functions:
 
@@ -26,7 +34,17 @@ Functions:
 
 Lists for hyperparameters:
 k - number of actions for 1 generation (default k=3)
+sh_amount - shares amount (fixed) (default sh_amount = 100)
+ini_wallet - initial wallet amount for every individual (default ini_wallet = 100)
+ini_emo - initial emotion resiliency for every individual (default ini_emo = 0.5)
+ini_death - initial death age for every individual (default check [[Design workflow of EA#Representation of Individual#Age|Age]])
 
+
+## Magic parameters
+trend_length - a series number of random stock price before simulation starts (default trend_length = 30)
+p_stock_mean - initial stock price mean (default p_stock_mean = 100)
+p_stock_sd - initial stock price standard deviation (default p_stock_sd = 30)
+p_share_sd - initial share price standard deviation (default p_share_sd = 20)
 
 ## Visualization
 
