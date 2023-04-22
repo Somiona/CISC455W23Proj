@@ -4,11 +4,14 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = "*"
-numpy = "*"
-torch = "*"
+flask = ">=2.2.0"
+numpy = ">=1.24.0"
+numba = ">=0.57.0rc1"
 
 [dev-packages]
 
 [requires]
-python_version = ">=3.9"
+python_version = ">=3.11.0"
+
+[pipenv]
+allow_prereleases = true
