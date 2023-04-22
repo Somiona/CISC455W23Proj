@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 flask = "*"
+numpy = "*"
+torch = "*"
 
 [dev-packages]
 
