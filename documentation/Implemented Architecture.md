@@ -30,9 +30,9 @@ Starts with 0
 
 Functions:
 
-## Hyperparameters
+## Hyper parameters
 
-Lists for hyperparameters:
+Lists for hyper parameters:
 k - number of actions for 1 generation (default k=3)
 sh_amount - shares amount (fixed) (default sh_amount = 100)
 ini_wallet - initial wallet amount for every individual (default ini_wallet = 100)
@@ -57,7 +57,7 @@ Things that users can adjust:
 	- Initialization option (Bonus)
 		- Random
 		- Import an data with 1x30 dimension
-- Total Generation 
+- Total Generation
 
 
 

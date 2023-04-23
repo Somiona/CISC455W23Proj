@@ -6,18 +6,18 @@
 		},
 		{
 			"path": "./backend",
-			"name": "/backend - Flask"
+			"name": "/backend"
 		},
 		{
 			"path": "./frontend",
-			"name": "/frontend - Freshjs"
+			"name": "/frontend"
 		}
 	],
-	"settings": {},
+	"settings": {
+		"powershell.cwd": "${workspaceFolder}",
+	},
 	"extensions": {
 		"recommendations": [
-			"denoland.vscode-deno",
-			"sastan.twind-intellisense",
 			"hediet.vscode-drawio"
 		]
 	}

@@ -1,10 +1,12 @@
 #!/bin/zsh
+# Author: Somiona Tian (17ht13@queensu.ca)
+# Disclaimer: This script is being tested under Ubuntu 20.10
 
-deno task --cwd ./frontend -c ./frontend/deno.json start &
-deno_pid=$!
+yarn --cwd ./frontend dev &
+yarn_pid=$!
 pipenv run flask --app ./backend/index run &
 flask_pid=$!
 
-trap "kill $deno_pid $flask_pid" SIGINT SIGTERM EXIT
+trap "kill $yarn_pid $flask_pid" SIGINT SIGTERM EXIT
 
 wait
