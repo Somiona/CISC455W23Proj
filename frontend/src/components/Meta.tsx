@@ -15,7 +15,7 @@ type IMetaProps = {
 const Meta: FC = (props: IMetaProps) => {
   const router = useRouter();
   const title: string = props.title ?? appConfig.title;
-  const desc = `${appConfig.description} - By ${appConfig.authors}`
+  const desc = `${appConfig.description} - By ${appConfig.authors.toString()}`;
   const description: string = props.description ?? desc;
   const canonical: string = props.canonical ?? router.asPath;
 

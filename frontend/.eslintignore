@@ -6,3 +6,5 @@ node_modules
 README.md
 *.config.js
 *.min.js
+.eslintrc.js
+example
