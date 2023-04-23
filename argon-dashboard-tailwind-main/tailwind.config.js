@@ -111,7 +111,7 @@ module.exports = {
         800: "#991b1b",
         900: "#7f1d1d",
       },
-      
+
       orange: {
         DEFAULT: colors.orange,
         50: "#fff7ed",
@@ -721,7 +721,7 @@ module.exports = {
       DEFAULT: "1",
     },
     fontFamily: {
-      sans: ["Open Sans"],
+      sans: ['var(--font-open-sans)'],
       serif: ['SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace', "serif"],
       body: ["Roboto", "sans-serif"],
       awesome: ["FontAwesome"],

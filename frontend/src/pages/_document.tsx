@@ -1,10 +1,11 @@
 import { Html, Head, Main, NextScript } from 'next/document'
+import { appConfig } from 'utils/config'
 
 export default function Document() {
   return (
-    <Html lang="en">
+    <Html lang={appConfig.locale}>
       <Head />
-      <body>
+      <body className={`font-sans antialiased`}>
         <Main />
         <NextScript />
       </body>

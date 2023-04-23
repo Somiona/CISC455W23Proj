@@ -1,0 +1,8 @@
+.vscode
+.next
+out
+node_modules
+
+README.md
+*.config.js
+*.min.js
