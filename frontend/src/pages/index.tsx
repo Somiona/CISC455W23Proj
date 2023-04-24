@@ -1,6 +1,13 @@
 // Author: Somiona Tian (17ht13@queensu.ca)
 // Disclaimer: Styles based on Argon Dashboard 2
 import DefaultLayout from "components/DefaultLayout";
+import PeekCard from "components/PeekCard";
+import {
+  faMoneyCheckDollar,
+  faUserTie,
+  faFaceSadCry,
+  faThumbsUp,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function Home() {
   return (
@@ -9,121 +16,47 @@ export default function Home() {
         {/* row 1 */}
         <div className="flex flex-wrap -mx-3">
           {/* card1 */}
-          <div className="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
-            <div className="relative flex flex-col min-w-0 break-words bg-white shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border">
-              <div className="flex-auto p-4">
-                <div className="flex flex-row -mx-3">
-                  <div className="flex-none w-2/3 max-w-full px-3">
-                    <div>
-                      <p className="mb-0 font-sans text-sm font-semibold leading-normal uppercase dark:text-white dark:opacity-60">
-                        Today&apos;s Money
-                      </p>
-                      <h5 className="mb-2 font-bold dark:text-white">$53,000</h5>
-                      <p className="mb-0 dark:text-white dark:opacity-60">
-                        <span className="text-sm font-bold leading-normal text-emerald-500">
-                          +55%
-                        </span>
-                        since yesterday
-                      </p>
-                    </div>
-                  </div>
-                  <div className="px-3 text-right basis-1/3">
-                    <div className="inline-block w-12 h-12 text-center rounded-circle bg-gradient-to-tl from-blue-500 to-violet-500">
-                      <i className="ni leading-none ni-money-coins text-lg relative top-3.5 text-white"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PeekCard
+            title="Overall Price"
+            main="$21000"
+            percentage={0.5}
+            since="since last day"
+            faicon={faMoneyCheckDollar}
+            bgColor="bg-gradient-to-t from-blue-500 to-violet-500"
+          />
 
           {/* card2 */}
-          <div className="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
-            <div className="relative flex flex-col min-w-0 break-words bg-white shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border">
-              <div className="flex-auto p-4">
-                <div className="flex flex-row -mx-3">
-                  <div className="flex-none w-2/3 max-w-full px-3">
-                    <div>
-                      <p className="mb-0 font-sans text-sm font-semibold leading-normal uppercase dark:text-white dark:opacity-60">
-                        Today&apos;s Users
-                      </p>
-                      <h5 className="mb-2 font-bold dark:text-white">2,300</h5>
-                      <p className="mb-0 dark:text-white dark:opacity-60">
-                        <span className="text-sm font-bold leading-normal text-emerald-500">
-                          +3%
-                        </span>
-                        since last week
-                      </p>
-                    </div>
-                  </div>
-                  <div className="px-3 text-right basis-1/3">
-                    <div className="inline-block w-12 h-12 text-center rounded-circle bg-gradient-to-tl from-red-600 to-orange-600">
-                      <i className="ni leading-none ni-world text-lg relative top-3.5 text-white"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PeekCard
+            title="Best Individual"
+            main="Noon Kho"
+            percentage={-0.3}
+            since="since last day"
+            faicon={faUserTie}
+            bgColor="bg-gradient-to-t from-red-600 to-orange-600"
+          />
 
           {/* card3 */}
-          <div className="w-full max-w-full px-3 mb-6 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/4">
-            <div className="relative flex flex-col min-w-0 break-words bg-white shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border">
-              <div className="flex-auto p-4">
-                <div className="flex flex-row -mx-3">
-                  <div className="flex-none w-2/3 max-w-full px-3">
-                    <div>
-                      <p className="mb-0 font-sans text-sm font-semibold leading-normal uppercase dark:text-white dark:opacity-60">
-                        New Clients
-                      </p>
-                      <h5 className="mb-2 font-bold dark:text-white">+3,462</h5>
-                      <p className="mb-0 dark:text-white dark:opacity-60">
-                        <span className="text-sm font-bold leading-normal text-red-600">-2%</span>
-                        since last quarter
-                      </p>
-                    </div>
-                  </div>
-                  <div className="px-3 text-right basis-1/3">
-                    <div className="inline-block w-12 h-12 text-center rounded-circle bg-gradient-to-tl from-emerald-500 to-teal-400">
-                      <i className="ni leading-none ni-paper-diploma text-lg relative top-3.5 text-white"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PeekCard
+            title="Emotional Status"
+            main="Damage"
+            percentage={0.8}
+            since="since last day"
+            faicon={faFaceSadCry}
+            bgColor="bg-gradient-to-t from-emerald-500 to-teal-400"
+          />
 
           {/* card4 */}
-          <div className="w-full max-w-full px-3 sm:w-1/2 sm:flex-none xl:w-1/4">
-            <div className="relative flex flex-col min-w-0 break-words bg-white shadow-xl dark:bg-slate-850 dark:shadow-dark-xl rounded-2xl bg-clip-border">
-              <div className="flex-auto p-4">
-                <div className="flex flex-row -mx-3">
-                  <div className="flex-none w-2/3 max-w-full px-3">
-                    <div>
-                      <p className="mb-0 font-sans text-sm font-semibold leading-normal uppercase dark:text-white dark:opacity-60">
-                        Sales
-                      </p>
-                      <h5 className="mb-2 font-bold dark:text-white">$103,430</h5>
-                      <p className="mb-0 dark:text-white dark:opacity-60">
-                        <span className="text-sm font-bold leading-normal text-emerald-500">
-                          +5%
-                        </span>
-                        than last month
-                      </p>
-                    </div>
-                  </div>
-                  <div className="px-3 text-right basis-1/3">
-                    <div className="inline-block w-12 h-12 text-center rounded-circle bg-gradient-to-tl from-orange-500 to-yellow-500">
-                      <i className="ni leading-none ni-cart text-lg relative top-3.5 text-white"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PeekCard
+            title="Average Fitness"
+            main="42"
+            percentage={0.02}
+            since="since last day"
+            faicon={faThumbsUp}
+            bgColor="bg-gradient-to-t from-orange-500 to-yellow-500"
+          />
         </div>
 
-        {/* <!-- cards row 2 -->
+        {/* cards row 2 */}
         <div className="flex flex-wrap mt-6 -mx-3">
           <div className="w-full max-w-full px-3 mt-0 lg:w-7/12 lg:flex-none">
             <div className="border-black/12.5 dark:bg-slate-850 dark:shadow-dark-xl shadow-xl relative z-20 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid bg-white bg-clip-border">
@@ -141,53 +74,9 @@ export default function Home() {
               </div>
             </div>
           </div>
-
-          <div className="w-full max-w-full px-3 lg:w-5/12 lg:flex-none">
-            <div slider className="relative w-full h-full overflow-hidden rounded-2xl">
-              <!-- slide 1 -->
-              <div slide className="absolute w-full h-full transition-all duration-500">
-                <img className="object-cover h-full" src="./assets/img/carousel-1.jpg" alt="carousel image" />
-                <div className="block text-start ml-12 left-0 bottom-0 absolute right-[15%] pt-5 pb-5 text-white">
-                  <div className="inline-block w-8 h-8 mb-4 text-center text-black bg-white bg-center rounded-lg fill-current stroke-none">
-                    <i className="top-0.75 text-xxs relative text-slate-700 ni ni-camera-compact"></i>
-                  </div>
-                  <h5 className="mb-1 text-white">Get started with Argon</h5>
-                  <p className="dark:opacity-80">There’s nothing I really wanted to do in life that I wasn’t able to get good at.</p>
-                </div>
-              </div>
-
-              <!-- slide 2 -->
-              <div slide className="absolute w-full h-full transition-all duration-500">
-                <img className="object-cover h-full" src="./assets/img/carousel-2.jpg" alt="carousel image" />
-                <div className="block text-start ml-12 left-0 bottom-0 absolute right-[15%] pt-5 pb-5 text-white">
-                  <div className="inline-block w-8 h-8 mb-4 text-center text-black bg-white bg-center rounded-lg fill-current stroke-none">
-                    <i className="top-0.75 text-xxs relative text-slate-700 ni ni-bulb-61"></i>
-                  </div>
-                  <h5 className="mb-1 text-white">Faster way to create web pages</h5>
-                  <p className="dark:opacity-80">That’s my skill. I’m not really specifically talented at anything except for the ability to learn.</p>
-                </div>
-              </div>
-
-              <!-- slide 3 -->
-              <div slide className="absolute w-full h-full transition-all duration-500">
-                <img className="object-cover h-full" src="./assets/img/carousel-3.jpg" alt="carousel image" />
-                <div className="block text-start ml-12 left-0 bottom-0 absolute right-[15%] pt-5 pb-5 text-white">
-                  <div className="inline-block w-8 h-8 mb-4 text-center text-black bg-white bg-center rounded-lg fill-current stroke-none">
-                    <i className="top-0.75 text-xxs relative text-slate-700 ni ni-trophy"></i>
-                  </div>
-                  <h5 className="mb-1 text-white">Share with us your design tips!</h5>
-                  <p className="dark:opacity-80">Don’t be afraid to be wrong because you can’t learn anything from a compliment.</p>
-                </div>
-              </div>
-
-              <!-- Control buttons -->
-              <button btn-next className="absolute z-10 w-10 h-10 p-2 text-lg text-white border-none opacity-50 cursor-pointer hover:opacity-100 far fa-chevron-right active:scale-110 top-6 right-4"></button>
-              <button btn-prev className="absolute z-10 w-10 h-10 p-2 text-lg text-white border-none opacity-50 cursor-pointer hover:opacity-100 far fa-chevron-left active:scale-110 top-6 right-16"></button>
-            </div>
-          </div>
         </div>
 
-        <!-- cards row 3 -->
+        {/* <!-- cards row 3 -->
 
         <div className="flex flex-wrap mt-6 -mx-3">
           <div className="w-full max-w-full px-3 mt-0 mb-6 lg:mb-0 lg:w-7/12 lg:flex-none">
