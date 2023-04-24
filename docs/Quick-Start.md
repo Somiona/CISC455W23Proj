@@ -23,7 +23,8 @@ To run documentation website, run
 $| docsify serve documentation
 ```
 ## How to run the project
+> [!WARNING|style:flat]
+> Use `CISC455W23Proj.code-workspace` instead of directly open the folder.
+
 Before running `launch_all.sh`, make sure you've run `pipenv install` inside the root dir of this project!
 Not inside Backend
-
-Also, remember use CISC455W23Proj.code-workspace instead of directly open the folder.

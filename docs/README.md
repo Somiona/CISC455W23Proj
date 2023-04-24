@@ -1,5 +1,8 @@
 # CISC455W23Proj
-EMOTIONAL DAMAGE! Haiya
+> [!ATTENTION|style:flat]
+> **EMOTIONAL DAMAGE! Haiya**
+
+## [NEW! View document at github pages](https://somiona.github.io/CISC455W23Proj/)
 
 ## What is this project about?
 we are trying to create a stock market **simulation** using Evolutionary Algorithm (EA).
@@ -15,6 +18,8 @@ we are trying to create a stock market **simulation** using Evolutionary Algorit
 - On average, what series of actions or behaviour for an investor is considered successful?
 
 ## How to run the project
+> [!WARNING|style:flat]
+> Use `CISC455W23Proj.code-workspace` instead of directly open the folder.
 
 ```terminal
 #|info| If you are using unix-like system
@@ -27,5 +32,3 @@ $| .\launch_all.sh
 
 Before running `launch_all.sh`, make sure you've run `pipenv install` inside the root dir of this project!
 Not inside Backend
-
-Also, remember use CISC455W23Proj.code-workspace instead of directly open the folder.

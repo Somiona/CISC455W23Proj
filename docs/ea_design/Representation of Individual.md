@@ -32,8 +32,11 @@ It represents the "thinking" of each individual
 	- Output Layer (1 neurons, 5x1 mapping)
 
 The current structure of the ANN model (mapping is wrong) is as follow:
+
 ![ann_struct](../images/ann_struct.png)
+
 image generated from [website](http://alexlenail.me/NN-SVG/index.html)
+
 ![ann_struct1](../images/ann_struct1.png)
 - There are in total of 381 variables for this ANN model
 	- Input Layer (30 weights + 30 bias = 60 variables)

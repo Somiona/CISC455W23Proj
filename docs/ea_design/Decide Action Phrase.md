@@ -1,11 +1,15 @@
 # Decide Action Phrase
+
 ![decide_action](../images/decide_action.png)
+
 - Each individual will *randomly order* the stocks and execute the action rundown
 - Thus Halt if for all stocks' decision are halt
 
 ## Decision condition for Action Selection
 The following graph show how each individual decide the action:
+
 ![decide_action](../images/decide_action.jpg)
+
 - Individual will perform
 	- Hold if ANN output value $\le$ | emotion resiliency |
 	- Buy if ANN output value > emotion resiliency

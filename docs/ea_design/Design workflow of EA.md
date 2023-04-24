@@ -1,4 +1,5 @@
 # Workflow Design
+
 ![Ea Flow](../images/EA_flow.png)
 
 Components needed:

@@ -1,0 +1,7 @@
+img {
+    max-width: 900px !important;
+    max-height: 700px !important;
+}
+#docsify-darklight-theme {
+    top: 0 !important;
+}
