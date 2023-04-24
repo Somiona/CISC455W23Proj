@@ -1,5 +1,6 @@
 // Author: Somiona Tian (17ht13@queensu.ca)
 // Disclaimer: Styles based on Argon Dashboard 2
+import { FC } from "react";
 import { appConfig } from "utils/config";
 import Link from "next/link";
 import favicon from "../../public/favicon-64.png";
@@ -8,7 +9,11 @@ import Image from "next/image";
 import { faTv, faTable, faUser } from "@fortawesome/free-solid-svg-icons";
 import SideNavItem from "./SideNavItem";
 
-export default function Side() {
+type PossiblePages = "Dashboard" | "Tables" | "Individuals";
+
+export type { PossiblePages };
+
+const SideNav: FC<{ currentActivate: PossiblePages }> = (prop) => {
   return (
     <aside
       className="fixed inset-y-0 flex-wrap items-center justify-between block w-full p-0 my-4
@@ -31,16 +36,6 @@ export default function Side() {
             height={64}
             className="inline h-full max-w-10 transition-all duration-200 ease-nav-brand max-h-10"
           />
-          {/* <img
-            src="./assets/img/logo-ct-dark.png"
-            className="inline h-full max-w-full transition-all duration-200 dark:hidden ease-nav-brand max-h-8"
-            alt="main_logo"
-          />
-          <img
-            src="./assets/img/logo-ct.png"
-            className="hidden h-full max-w-full transition-all duration-200 dark:inline ease-nav-brand max-h-8"
-            alt="main_logo"
-          /> */}
           <span className="ml-1 font-semibold transition-all duration-200 ease-nav-brand">
             {appConfig.site_name}
           </span>
@@ -55,22 +50,25 @@ export default function Side() {
             faicon={faTv}
             tag="Dashboard"
             href="/"
-            isActive={true}
+            isActive={prop.currentActivate === "Dashboard"}
             className="text-blue-500"
+            key={1}
           />
           <SideNavItem
             faicon={faTable}
             tag="Tables"
             href="/tables"
-            isActive={false}
+            isActive={prop.currentActivate === "Tables"}
             className="text-orange-500"
+            key={2}
           />
           <SideNavItem
             faicon={faUser}
             tag="Individuals"
             href="/individuals"
-            isActive={false}
+            isActive={prop.currentActivate === "Individuals"}
             className="text-emerald-500"
+            key={3}
           />
 
           {/* <li className="w-full mt-4">
@@ -124,4 +122,6 @@ export default function Side() {
       </div>
     </aside>
   );
-}
+};
+
+export default SideNav;
