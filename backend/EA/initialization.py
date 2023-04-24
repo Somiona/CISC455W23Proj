@@ -287,10 +287,6 @@ def assign_initial_shares(investors, stocks, num_directors, stage="general"):
             share.update_owner(np.random.choice(normal_investors))
 
 
-"""Test cases
-forward(input_values), get_weights(), add_weight(index, value), add_weights(indices, values),
-add_all_weights(value), update_weight(index, value)
-"""
 ### Test ANN ###
 # net = ANN()
 # print(net.get_weights()) # test get_weights()
