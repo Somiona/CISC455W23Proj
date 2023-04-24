@@ -11,6 +11,10 @@
 		{
 			"path": "./frontend",
 			"name": "/frontend"
+		},
+		{
+			"path": "./docs",
+			"name": "/docs"
 		}
 	],
 	"settings": {

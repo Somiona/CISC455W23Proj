@@ -1,0 +1,2 @@
+# Termination Condition
+For termination condition, it's either reach the generation number or pause anytime (since we are updating the progress per generation) or when every individual halt (hold for more than 3 generations)

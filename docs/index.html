@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>EA Stock Document</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="description" content="Description" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css"
+    />
+    <link
+      rel="stylesheet"
+      href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/docsify-toc@1.0.0/dist/toc.css"
+    />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      window.$docsify = {
+        markdown: {
+          renderer: {
+            code: function (code, lang) {
+              if (lang === "drawio") {
+                if (window.drawioConverter) {
+                  console.log("drawio Rendering");
+                  return window.drawioConverter(code);
+                } else {
+                  return `<div class='drawio-code'>${code}</div>`;
+                }
+              } else {
+                return this.origin.code.apply(this, arguments);
+              }
+            },
+          },
+        },
+        relativePath: true,
+        loadSidebar: true,
+        toc: {
+          scope: ".markdown-section",
+          headings: "h1, h2, h3, h4, h5, h6",
+          title: "Table of Contents",
+        },
+        mermaidConfig: {
+          querySelector: ".mermaid",
+        },
+      };
+    </script>
+    <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-wikilink@1"></script>
+    <script src="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/marked@4"></script>
+    <!-- CDN files for docsify-katex -->
+    <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
+    <script src="https://unpkg.com/docsify-copy-code"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-terminal-block@1.0.3"></script>
+    <script src="https://unpkg.com/docsify-toc@1.0.0/dist/toc.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-typescript.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-drawio/viewer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-drawio/drawio.js"></script>
+    <script src="//unpkg.com/docsify-swagger/dist/docsify-swagger.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/d3@7"></script>
+    <!-- Import Mermaid -->
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({ startOnLoad: true });
+      window.mermaid = mermaid;
+    </script>
+    <!-- Import Docsify-mermaid-zoom -->
+    <script src="//unpkg.com/docsify-mermaid@2.0.0/dist/docsify-mermaid.js"></script>
+    <script src="//unpkg.com/docsify-mermaid-zoom/dist/docsify-mermaid-zoom.js"></script>
+  </body>
+</html>

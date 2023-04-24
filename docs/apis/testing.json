@@ -1,0 +1,55 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "",
+    "title": "API Title",
+    "version": "1.0"
+  },
+  "host": "localhost:5000",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "stocks",
+      "description": "Information about stocks"
+    }
+  ],
+  "schemes": ["http"],
+  "paths": {
+    "/pet/{petId}/uploadImage": {
+      "post": {
+        "tags": ["stocks"],
+        "summary": "uploads an image",
+        "description": "",
+        "operationId": "uploadFile",
+        "consumes": ["multipart/form-data"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "path",
+            "description": "ID of pet to update",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": { "$ref": "#/definitions/ApiResponse" }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ApiResponse": {
+      "type": "object",
+      "properties": {
+        "code": { "type": "integer", "format": "int32" },
+        "type": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    }
+  }
+}

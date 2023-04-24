@@ -1,6 +1,6 @@
 # Implementation Architecture
 ## Conceptual Architecture
-![[455_conceptual_arch.png]]
+![455_conceptual_arch](..\images\455_conceptual_arch.png)
 
 ## Libraries require
 
@@ -58,10 +58,3 @@ Things that users can adjust:
 		- Random
 		- Import an data with 1x30 dimension
 - Total Generation
-
-
-
-
-## Related to
-- [[Document for CISC 455 Project]]
-- [[2023-03-20]]
