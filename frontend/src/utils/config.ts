@@ -1,16 +1,15 @@
+// Author: Somiona Tian (17ht13@queensu.ca)
+
 import { RawAxiosRequestHeaders } from "axios";
 
 const appConfig = {
-  site_name: "Stock Simulator",
-  title: "Emotional Damage Stock Simulator",
-  description: "CISC 455 Final Project - Emotional Damage Stock Simulator",
+  site_name: "EA Stock Simulator",
+  title: "EA Stock Simulator",
+  description:
+    "CISC 455 Final Project - Emotional Damage Stock Simulator an Evolutionary Algorithm Approach By Team 26",
   locale: "en",
-  authors: [
-    "E Ching Kho",
-    "Somiona Tian",
-    "Peter"
-  ]
-}
+  authors: ["E Ching Kho", "Somiona Tian", "Wenqi Tang"],
+};
 
 interface IAPIBase {
   url: string;
@@ -19,13 +18,11 @@ interface IAPIBase {
 
 const serverConfig: Record<string, IAPIBase> = {
   devAPI: {
-    url: "http://api.unifurse.cn:8000",
-    // url: "http://localhost:8000",
-    // url: "http://127.0.0.1:4523/mock/868521-0-default",
+    url: "http://localhost:8000",
     headers: {},
   },
   prodAPI: {
-    url: "https://api.unifurse.cn",
+    url: "https://example.com/api",
     headers: {},
   },
 };

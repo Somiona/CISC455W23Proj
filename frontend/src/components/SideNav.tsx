@@ -1,4 +1,12 @@
+// Author: Somiona Tian (17ht13@queensu.ca)
+// Disclaimer: Styles based on Argon Dashboard 2
 import { appConfig } from "utils/config";
+import Link from "next/link";
+import favicon from "../../public/favicon-64.png";
+import Image from "next/image";
+
+import { faTv, faTable, faUser } from "@fortawesome/free-solid-svg-icons";
+import SideNavItem from "./SideNavItem";
 
 export default function Side() {
   return (
@@ -10,13 +18,19 @@ export default function Side() {
       <div className="h-19">
         <i
           className="absolute top-0 right-0 p-4 opacity-50 cursor-pointer fas fa-times dark:text-white text-slate-400 xl:hidden"
-          sidenav-close
+          sidenav-close="true"
         ></i>
-        <a
+        <Link
           className="block px-8 py-6 m-0 text-sm whitespace-nowrap dark:text-white text-slate-700"
-          href="https://demos.creative-tim.com/argon-dashboard-tailwind/pages/dashboard.html"
-          target="_blank"
+          href="/"
         >
+          <Image
+            alt="Main Logo"
+            src={favicon}
+            width={64}
+            height={64}
+            className="inline h-full max-w-10 transition-all duration-200 ease-nav-brand max-h-10"
+          />
           {/* <img
             src="./assets/img/logo-ct-dark.png"
             className="inline h-full max-w-full transition-all duration-200 dark:hidden ease-nav-brand max-h-8"
@@ -30,52 +44,34 @@ export default function Side() {
           <span className="ml-1 font-semibold transition-all duration-200 ease-nav-brand">
             {appConfig.site_name}
           </span>
-        </a>
+        </Link>
       </div>
 
       <hr className="h-px mt-0 bg-transparent bg-gradient-to-r from-transparent via-black/40 to-transparent dark:bg-gradient-to-r dark:from-transparent dark:via-white dark:to-transparent" />
 
       <div className="items-center block w-auto max-h-screen overflow-auto h-sidenav grow basis-full">
         <ul className="flex flex-col pl-0 mb-0">
-          <li className="mt-0.5 w-full">
-            <a
-              className="py-2.7 bg-blue-500/13 dark:text-white dark:opacity-80 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap rounded-lg px-4 font-semibold text-slate-700 transition-colors"
-              href="./pages/dashboard.html"
-            >
-              <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                <i className="relative top-0 text-sm leading-normal text-blue-500 ni ni-tv-2"></i>
-              </div>
-              <span className="ml-1 duration-300 opacity-100 pointer-events-none ease">
-                Dashboard
-              </span>
-            </a>
-          </li>
-
-          <li className="mt-0.5 w-full">
-            <a
-              className=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors"
-              href="./pages/tables.html"
-            >
-              <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                <i className="relative top-0 text-sm leading-normal text-orange-500 ni ni-calendar-grid-58"></i>
-              </div>
-              <span className="ml-1 duration-300 opacity-100 pointer-events-none ease">Tables</span>
-            </a>
-          </li>
-
-          {/* <li className="mt-0.5 w-full">
-            <a
-              className=" dark:text-white dark:opacity-80 py-2.7 text-sm ease-nav-brand my-0 mx-2 flex items-center whitespace-nowrap px-4 transition-colors"
-              href="./pages/billing.html"
-            >
-              <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center fill-current stroke-0 text-center xl:p-2.5">
-                <i className="relative top-0 text-sm leading-normal text-emerald-500 ni ni-credit-card"></i>
-              </div>
-              <span className="ml-1 duration-300 opacity-100 pointer-events-none ease">
-                Billing
-              </span>
-            </a>
-          </li> */}
+          <SideNavItem
+            faicon={faTv}
+            tag="Dashboard"
+            href="/"
+            isActive={true}
+            className="text-blue-500"
+          />
+          <SideNavItem
+            faicon={faTable}
+            tag="Tables"
+            href="/tables"
+            isActive={false}
+            className="text-orange-500"
+          />
+          <SideNavItem
+            faicon={faUser}
+            tag="Individuals"
+            href="/individuals"
+            isActive={false}
+            className="text-emerald-500"
+          />
 
           {/* <li className="w-full mt-4">
             <h6 className="pl-6 ml-2 text-xs font-bold leading-tight uppercase dark:text-white opacity-60">

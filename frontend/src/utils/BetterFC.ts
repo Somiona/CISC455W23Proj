@@ -1,3 +1,4 @@
+// Author: Somiona Tian (17ht13@queensu.ca)
 import type { FC, PropsWithChildren } from "react";
 
 type PropsWithClassName<P> = P & { className?: string };

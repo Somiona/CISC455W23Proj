@@ -1,3 +1,5 @@
+// Author: Somiona Tian (17ht13@queensu.ca)
+// Disclaimer: Styles based on Argon Dashboard 2
 import { default as c } from "classnames";
 import Meta from "components/Meta";
 import { Open_Sans } from "next/font/google";
