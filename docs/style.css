@@ -5,3 +5,7 @@ img {
 #docsify-darklight-theme {
     top: 0 !important;
 }
+
+.docsify-pagination-container {
+    padding-bottom: 2em !important;
+}
