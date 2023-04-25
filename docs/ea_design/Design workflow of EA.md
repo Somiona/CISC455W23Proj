@@ -12,4 +12,5 @@ Components needed:
 - Environment Selection (Survivor Selection)
 - Termination Condition
 
-**For simplicity, each generation is a time unit (tu)**
+**For simplicity, each generation is a time unit (tu) and generation index starts at 0**
+

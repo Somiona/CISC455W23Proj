@@ -83,7 +83,7 @@ Each Individual will have following properties related to age:
 ## Shares_hold
 The amount of stocks each individual holds
 - The data type for this property is dictionary
-	- {"stock": \[\[First bought stock price, Fail to sell counter\]\]}
+	- {"stock": \[\[First bought share price, Fail to sell counter\]\]}
 
 ## Journal entry
 It represents the entire transaction (action) history of each individual throughout the entire simulation. It records the entire history of wallet, transactions, shares_hold changes.
