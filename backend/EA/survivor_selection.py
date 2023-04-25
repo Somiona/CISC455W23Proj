@@ -1,6 +1,6 @@
 """
-Description: A colleciton of survivor selection methods
-Programmer:
+Description: A collection of survivor selection methods
+Programmer: Wenqi Tang
 Disclaimer: This is for Queen's University CISC 455 Team Project
             Team member: E Ching Kho, Somoina Tian, Wenqi Tang
             Python Version 3.11.2 when developing
@@ -92,24 +92,22 @@ def evolution(population, max_generations, termination_halt, lambda_individuals,
 
     return population
 
-
-
-
-if __name__ == "__main__":
+if __name__== "__main__":
     # Example population
     population = [
         Individual(100, 0.5, ANN([1, 2, 3]), 3, 10),
         Individual(200, 0.6, ANN([4, 5, 6]), 5, 15),
         Individual(300, 0.7, ANN([7, 8, 9]), 8, 20),
-]
-max_generations = 100
-termination_halt = 3
-lambda_individuals = 2
-heritage_option = "heritage"
+    ]
+    max_generations = 100
+    termination_halt = 3
+    lambda_individuals = 2
+    heritage_option = "heritage"
 
-final_population = evolution(population, max_generations, termination_halt, lambda_individuals, heritage_option)
+    final_population = evolution(population, max_generations, termination_halt, lambda_individuals, heritage_option)
 
-# Print the final population
-print("\nFinal population:")
-for ind in final_population:
-    print(vars(ind))
+    # Print the final population
+    print("\nFinal population:")
+    for ind in final_population:
+        print(vars(ind))
+

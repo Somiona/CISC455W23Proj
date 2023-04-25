@@ -1,6 +1,7 @@
 """
-Description: A colleciton of recombination methods
-Programmer:
+Description: A collection of class representation and initialization methods
+
+Programmer: Wenqi Tang
 Disclaimer: This is for Queen's University CISC 455 Team Project
             Team member: E Ching Kho, Somoina Tian, Wenqi Tang
             Python Version 3.11.2 when developing
@@ -8,8 +9,8 @@ Disclaimer: This is for Queen's University CISC 455 Team Project
 
 import numpy as np
 
-
 ### This is used for testing purpose
+
 class Individual:
     def __init__(self, wallet, emotional_resiliency, ann, age, death_age):
         self.wallet = wallet
@@ -18,13 +19,13 @@ class Individual:
         self.age = age
         self.death_age = death_age
 
-
 class ANN:
     def __init__(self, weights):
         self.weights = weights
 
 ### The code below are the real one
 
+# Recombination functions
 def teach_me_something_bro(population, individual1, individual2, alpha, beta):
     # Determine which individual is less fit
     if individual1.wallet < individual2.wallet:
@@ -48,7 +49,6 @@ def teach_me_something_bro(population, individual1, individual2, alpha, beta):
     learner.wallet -= thank_you_money
     fitter.wallet += thank_you_money
 
-
 def new_investors(population, new_investors_list):
     # Identify individuals that have reached their death age
     dead_individuals = [ind for ind in population if ind.age >= ind.death_age]
@@ -57,9 +57,7 @@ def new_investors(population, new_investors_list):
     for dead_ind, new_investor in zip(dead_individuals, new_investors_list):
         population[population.index(dead_ind)] = new_investor
 
-
 # Add other recombination functions here
-
 
 def recombination_transformation(population, generation, recombinations):
     """
@@ -93,9 +91,7 @@ def recombination_transformation(population, generation, recombinations):
                 # Apply the recombination function specified in the recombination dictionary with the additional arguments
                 recombination['function'](population, *recombination['args'])
 
-
-### Now it is time to test those functions
-
+# Test the functions
 if __name__ == "__main__":
     # Example population
     population = [
@@ -131,3 +127,4 @@ if __name__ == "__main__":
     print("\nPopulation after recombination transformation:")
     for ind in population:
         print(vars(ind))
+
