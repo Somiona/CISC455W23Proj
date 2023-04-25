@@ -154,4 +154,4 @@ def buy(buyer, seller):
 # assign_initial_shares(population, market, 2)
 
 ### Test ea
-ea(50, 200.0, 0.3, 75, 5, 5, ["ABC","XYZ"], 20)
+# ea(50, 200.0, 0.3, 75, 5, 5, ["ABC","XYZ"], 100)
