@@ -8,6 +8,7 @@ Disclaimer: This is for Queen's University CISC 455 Team Project
 """
 # Import Files and Libraries
 import numpy as np
+import matplotlib.pyplot as plt
 
 def random_algo(total_tu=130, trend_mean=100, trend_sd=10, fluctuate_mean=0, fluctuate_sd=20):
     """
@@ -21,4 +22,10 @@ def random_algo(total_tu=130, trend_mean=100, trend_sd=10, fluctuate_mean=0, flu
 ### Test random_algo ###
 algo = random_algo()
 print(algo.shape)
-print(algo)
+stock = algo[30:]
+
+plt.plot(np.arange(100), stock)
+plt.title("Random Algorithm Stock")
+plt.xlabel("Generation")
+plt.ylabel("Price Data")
+plt.savefig("random_algo.png")
