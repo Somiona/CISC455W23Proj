@@ -1,229 +1,306 @@
 """
 Description: A colleciton of mutation methods
-Programmer: Wenqi Tang
+Programmer: Wenqi Tang, E Ching Kho
 Disclaimer: This is for Queen's University CISC 455 Team Project
             Team member: E Ching Kho, Somoina Tian, Wenqi Tang
             Python Version 3.11.2 when developing
 """
-
-
-
+# Import Files and Libraries
 import numpy as np
-import random
+from initialization import Share, Stock, Investor, ANN, Action
 
+# ### The code below are the real one
+#  {
+#             'type': 'conditional',
+#             'condition': lambda ind: ind.action == 'hold',
+#             'function': emotional_damage,
+#         },
+#         {
+#             'type': 'conditional',
+#             'condition': lambda ind: ind.action in ['buy', 'sell'],
+#             'function': emotion_okay_lah,
+#         },
+#         {
+#             'type': 'probabilistic',
+#             'probability': 0.5,
+#             'function': maybe_i_should_change,
+#             'args': [0.1],
+#         },
+#         {
+#             'type': 'probabilistic',
+#             'probability': 0.3,
+#             'function': life_is_uncertain,
+#         },
 
-### This is used for testing purpose
+class Mutation:
+    curr_gen = 0 # When initialization, the current generation is 0
+    
+    def __init__(self, individual, type, probability, functions, num_gen=0, start_gen=0, cycle_num=1, conditions=None, arguments=None):
+        """
+        Input: Investor - individual, String - type, Float - probability, [function] - functions, Integer - num_gen, Integer - start_gen, Integer - cycle_num, [lambda function] - conditions, [Float] - arguments
+        Output: None
+        Description: Initialize Mutation
+        """
+        self.individual = individual
+        self.type = type
+        self.prob = probability
+        self.functions = functions
+        self.cycle = np.arange(start_gen, num_gen, cycle_num)
+        self.condition = conditions
+        self.arguments = arguments
+        self.start_gen = start_gen
+    
+    def decide_function(self):
+        if np.random.rand() <= self.probability: # Determine if this mutation occurs
+            if self.conditions == None:
+                # type is either "periodic" or "probablistic"
+                if len(self.cycle) == 0:
+                    # type is "probablistic"
+                    self.run_check_has_arguments(0)
+                else:
+                    # type is "periodic"
+                    if self.curr_gen in self.cycle:
+                        self.run_check_has_arguments(0)
+            else:
+                # type is "conditional"
+                for i in range(len(self.conditions)):
+                    if self.conditions[i](self.individual):
+                        self.run_check_has_arguments(i)    
 
-class SimpleANN:
-    def __init__(self, weights):
-        self.weights = weights
-
-class Individual:
-    def __init__(self, wallet, emotional_resiliency, ann, shares_hold, action):
-        self.wallet = wallet
-        self.emotional_resiliency = emotional_resiliency
-        self.ann = ann
-        self.shares_hold = shares_hold
-        self.action = action
-
-
-### The code below are the real one
-
-
-# Decreases emotional resiliency (bounded between [0, 1])
+    def run_check_has_arguments(self, i):
+        if self.arguments != None:
+            self.functions[i](self.individual, *self.arguments)
+        else:
+            self.functions[i](self.individual)
+    
+    
 def emotional_damage(individual):
+    """
+    Input: Investor - individual
+    Output: None
+    Description: Decreases the individual's emotional resiliency by a random value between 0 and 1 (bounded between [0, 1])
+    """
     # Subtract a random value between 0 and 1 from emotional resiliency, and clip it to be within the range [0, 1]
-    individual.emotional_resiliency = max(0, individual.emotional_resiliency - np.random.uniform())
-
-# This function takes an individual as input and decreases its emotional resiliency by a random value between 0 and 1.
-# It ensures that the new emotional resiliency value stays within the range [0, 1].
+    individual.emotion = max(0, individual.emotion - np.random.uniform())
 
 
-# Increases emotional resiliency (bounded between [0, 1])
 def emotion_okay_lah(individual):
+    """
+    Input: Investor - individual
+    Output: None
+    Description: Increase the individual's emotional resiliency by a random value between 0 and 1 (bounded between [0, 1])
+    """
     # Add a random value between 0 and 1 to emotional resiliency, and clip it to be within the range [0, 1]
-    individual.emotional_resiliency = min(1, individual.emotional_resiliency + np.random.uniform())
-
-# This function takes an individual as input and increases its emotional resiliency by a random value between 0 and 1.
-# It ensures that the new emotional resiliency value stays within the range [0, 1].
+    individual.emotion = min(1, individual.emotion + np.random.uniform())
 
 
-# Increases wallet amount and lowers emotional resiliency
+# 
 def get_salary(individual, gain_wallet):
+    """
+    Input: Investor - individual, Float - gain_wallet
+    Output: None
+    Description: Increases wallet amount and lowers emotional resiliency
+    """
     individual.wallet += gain_wallet
-    # Update emotional resiliency by multiplying it with (1 - gain_wallet)
-    individual.emotional_resiliency *= (1 - gain_wallet)
-
-# This function takes an individual and a gain_wallet value as input. It increases the individual's wallet amount by
-# gain_wallet and lowers the emotional resiliency by multiplying it with (1 - gain_wallet).
+    # Update emotional resiliency by multiplying it with (1 - gain_wallet/individual.wallet)
+    individual.emotion *= (1 - gain_wallet/individual.wallet)
 
 
-# Decreases wallet amount and raises emotional resiliency
 def pay_for_survival(individual, loss_wallet):
+    """
+    Input: Investor - individual, Float - loss_wallet
+    Output: None
+    Description: Decrease wallet amount and raises emotional resiliency
+    """
     individual.wallet -= loss_wallet
-    # Update emotional resiliency by multiplying it with (1 + loss_wallet)
-    individual.emotional_resiliency *= (1 + loss_wallet)
-
-# This function takes an individual and a loss_wallet value as input. It decreases the individual's wallet amount by
-# loss_wallet and raises the emotional resiliency by multiplying it with (1 + loss_wallet).
+    # Update emotional resiliency by multiplying it with (1 + loss_wallet/individual.wallet)
+    individual.emotion *= (1 + loss_wallet/individual.wallet)
 
 
-# Modifies a random neuron's weight in the ANN model based on the best individual
-def continuous_learning(individual, best_individual):
+# 
+def learn_from_rich(individual, best_individual):
+    """
+    Input: Investor - individual, Investor - best_individual
+    Output: None
+    Description: Modifies a random neuron's weight in the individual's ANN model based on the best individual
+    """
     # Select a random weight index
-    random_weight_index = random.randint(0, len(individual.ann.weights) - 1)
+    random_weight_index = np.random.choice(np.arange(individual.ann.total_weights))
     # Clone the weight from the best individual
-    individual.ann.weights[random_weight_index] = best_individual.ann.weights[random_weight_index]
-
-# This function takes an individual and the best_individual as input. It selects a random neuron's weight from the
-# individual's ANN model and modifies it based on the corresponding weight in the best_individual's ANN model.
+    individual.ann.update_weight(random_weight_index, best_individual.ann.get_weight(random_weight_index))
 
 
-# Adds a random value (from a normal distribution) to some weights of an individual's ANN model
 def maybe_i_should_change(individual, sigma):
-    num_weights = len(individual.ann.weights)
+    """
+    Input: Investor - individual, Float - sigma
+    Output: None
+    Description: Add random values (from a normal distribution) to some weights of an individual's ANN model
+    """
     # Select a random number of weights to change
-    num_weights_to_change = random.randint(1, num_weights)
-    for _ in range(num_weights_to_change):
-        # Select a random weight index
-        random_weight_index = random.randint(0, num_weights - 1)
-        # Add a random value from a normal distribution with mean 0 and standard deviation sigma
-        individual.ann.weights[random_weight_index] += np.random.normal(0, sigma)
+    num_weights_to_change = np.random.choice(1, np.arange(individual.total_weights))
 
-# This function takes an individual and a sigma value as input. It randomly selects a number of weights from the
-# individual's ANN model and adds a random value from a normal distribution with mean 0 and standard deviation sigma
-# to each selected weight.
+    # Randomly choice those weights
+    random_weight_indices = np.random.choice(np.arange(individual.total_weighs), num_weights_to_change, replace=False)
+    # Add random values from a normal distribution with mean 0 and standard deviation sigma to those weights
+    individual.ann.add_weights(random_weight_indices, np.random.normal(0, sigma, num_weights_to_change))
+    
+
 # Modifies wallet, emotional resiliency, ANN, or shares_hold with equal probability
-def life_is_uncertain(individual, config):
+def life_is_uncertain(individual, config={"wallet": 50,"emotion": 0.1,"ann": 0.01}, probabilities=np.ones(4)/4):
+    """
+    Input: Investor - individual, {String: Float} - config, [Float] - probabilities,
+    Output: None
+    Description: randomly modifies individual's wallet, emotional resiliency, ANN, or shares_hold based on given probabilities
+                 config = {
+                    "wallet": 50,
+                    "emotion": 0.1,
+                    "ann": 0.03
+                 } which is preset modification
+    """
     # Select a random event
-    event = random.choice(['wallet', 'emotion_resiliency', 'ann', 'shares_hold'])
+    event = np.random.choice(['wallet', 'emotion_resiliency', 'ann', 'shares_hold'])
+    
     if event == 'wallet':
         # Update wallet with a random value from a normal distribution with mean 0 and standard deviation specified in config
-        individual.wallet += np.random.normal(0, config['life_is_uncertain_sigma_wallet'])
+        individual.add_wallet(np.ranodm.normal(0, config["wallet"]))
 
     elif event == 'emotion_resiliency':
         # Update emotional resiliency with a random value from a normal distribution with mean 0 and standard deviation specified in config
-        new_resiliency = individual.emotional_resiliency + np.random.normal(0, config[
-            'life_is_uncertain_sigma_emotion_resiliency'])
-        # Clip the new value to be within the range [0, 1]
-        individual.emotional_resiliency = np.clip(new_resiliency, 0, 1)
+        individual.add_emotion(np.random.normal(0, config["emotion"]))
 
     elif event == 'ann':
-        # Select a random weight index
-        random_weight_index = random.randint(0, len(individual.ann.weights) - 1)
-        # Add a random value from a normal distribution with mean 0 and standard deviation specified in config
-        individual.ann.weights[random_weight_index] += np.random.normal(0, config['life_is_uncertain_sigma_ann'])
+        maybe_i_should_change(individual, config["ann"])
 
     elif event == 'shares_hold':
-        if len(individual.shares_hold) > 0:
+        if individual.shares:
             # Randomly select a stock
-            random_stock = random.choice(individual.shares_hold)
-            # Randomize its fail to sell counter between [0, 10]
-            random_stock.fail_to_sell_counter = random.randint(0, 10)
-        else:
-            # Do nothing if the individual has no shares
-            pass
+            stock_shares = individual.shares[np.random.choice([stock for stock in individual.shares.keys()])]
+            # Randomly select a share
+            share = np.random.choice(stock_shares)
+            # Randomize its failed selling counter between [0, 10]
+            share.failed_selling = np.random.choice(np.arange(11))
 
 
-def mutation_transformation(individual, best_individual, generation, mutations):
+def mutation_transformation(individual, prob_list, best_ind, num_gen, emo_cond, sal_peri, pay_peri, learn_peri, change, uncertain):
     """
-    Performs a mutation transformation on an individual, given its current generation, the
-    user-configured mutation settings, and a list of mutation dictionaries.
-
-    Args:
-        individual (object): The individual on which the mutations will be applied.
-        best_individual (object): The current best individual in the population, used for continuous learning.
-        config (dict): The configuration dictionary containing user-configured mutation settings.
-        generation (int): The current generation number of the evolutionary process.
-        mutations (list): List of mutation dictionaries containing mutation types, conditions, and functions.
+    Input: Investor - individual, [Float] - prob_list, Investor - best_ind, Integer - num_gen, Boolean - emo_cond, Boolean - sal_peri, Boolean - pay_peri, Boolean - learn_peri, Boolean - change, Boolean - uncertain
+    Output: [Mutation]
+    Description: initialize a list of Mutation
     """
+    mu_list = []
+    if emo_cond:
+        mu_list.append(Mutation(individual, "Conditional", 1, [emotional_damage, emotion_okay_lah],conditions=[lambda ind: ind.action_value == 0, lambda ind: ind.action_value != 0]))
+    if sal_peri:
+        mu_list.append(Mutation(individual, "periodic", 1, [get_salary], num_gen, 5, 10, arguments=[np.random.normal(75, 15)]))
+    if pay_peri:
+        mu_list.append(Mutation(individual, "periodic", 1, [pay_for_survival], num_gen, 10, 10, arguments=[np.random.normal(50, 10)]))
+    if learn_peri:
+        mu_list.append(Mutation(individual, "periodic", 1, [learn_peri], num_gen, 5, 20, arguments=[best_ind]))
+    if change:
+        mu_list.append(Mutation(individual, "probablistic", prob_list[0], [maybe_i_should_change], arguments=[0.01]))
+    if uncertain:
+        mu_list.append(Mutation(individual, "probablistic", prob_list[1], [life_is_uncertain]))
+    return mu_list
 
-    # Iterate through the list of mutation dictionaries
-    for mutation in mutations:
-        # Conditional Mutation
-        if mutation['type'] == 'conditional':
-            # Check if the condition specified in the mutation dictionary is satisfied
-            if mutation['condition'](individual):
-                # Apply the mutation function specified in the mutation dictionary
-                mutation['function'](individual)
+# def mutation_transformation(individual, best_individual, generation, mutations):
+#     """
+#     Performs a mutation transformation on an individual, given its current generation, the
+#     user-configured mutation settings, and a list of mutation dictionaries.
 
-        # Periodic Mutation
-        elif mutation['type'] == 'periodic':
-            # Check if the current generation is a multiple of the period specified in the mutation dictionary
-            if generation % mutation['period'] == 0:
-                # Apply the mutation function specified in the mutation dictionary with the additional arguments
-                mutation['function'](individual, *mutation['args'])
+#     Args:
+#         individual (object): The individual on which the mutations will be applied.
+#         best_individual (object): The current best individual in the population, used for continuous learning.
+#         config (dict): The configuration dictionary containing user-configured mutation settings.
+#         generation (int): The current generation number of the evolutionary process.
+#         mutations (list): List of mutation dictionaries containing mutation types, conditions, and functions.
+#     """
 
-        # Probabilistic Mutation
-        elif mutation['type'] == 'probabilistic':
-            # Check if a random uniform number is less than the probability specified in the mutation dictionary
-            if np.random.uniform() < mutation['probability']:
-                # Apply the mutation function specified in the mutation dictionary with the additional arguments
-                mutation['function'](individual, *mutation['args'])
+#     # Iterate through the list of mutation dictionaries
+#     for mutation in mutations:
+#         # Conditional Mutation
+#         if mutation['type'] == 'conditional':
+#             # Check if the condition specified in the mutation dictionary is satisfied
+#             if mutation['condition'](individual):
+#                 # Apply the mutation function specified in the mutation dictionary
+#                 mutation['function'](individual)
+
+#         # Periodic Mutation
+#         elif mutation['type'] == 'periodic':
+#             # Check if the current generation is a multiple of the period specified in the mutation dictionary
+#             if generation % mutation['period'] == 0:
+#                 # Apply the mutation function specified in the mutation dictionary with the additional arguments
+#                 mutation['function'](individual, *mutation['args'])
+
+#         # Probabilistic Mutation
+#         elif mutation['type'] == 'probabilistic':
+#             # Check if a random uniform number is less than the probability specified in the mutation dictionary
+#             if np.random.uniform() < mutation['probability']:
+#                 # Apply the mutation function specified in the mutation dictionary with the additional arguments
+#                 mutation['function'](individual, *mutation['args'])
 
 # The main script below is for testing the mutation transformation function with a simple example
-if __name__ == "__main__":
-    # Create two simple ANN models for testing purposes
-    ann1 = SimpleANN([0.1, 0.2, 0.3])
-    ann2 = SimpleANN([0.4, 0.5, 0.6])
+# if __name__ == "__main__":
+#     # Create two simple ANN models for testing purposes
+#     ann1 = SimpleANN([0.1, 0.2, 0.3])
+#     ann2 = SimpleANN([0.4, 0.5, 0.6])
 
-    # Create two individuals for testing purposes
-    individual1 = Individual(1000, 0.5, ann1, [], 'hold')
-    individual2 = Individual(2000, 0.7, ann2, [], 'buy')
+#     # Create two individuals for testing purposes
+#     individual1 = Individual(1000, 0.5, ann1, [], 'hold')
+#     individual2 = Individual(2000, 0.7, ann2, [], 'buy')
 
-    # Set the best individual
-    best_individual = individual2
+#     # Set the best individual
+#     best_individual = individual2
 
-    # Set the current generation
-    generation = 1
+#     # Set the current generation
+#     generation = 1
 
-    # Create a list of mutation dictionaries for testing purposes
-    mutations = [
-        {
-            'type': 'conditional',
-            'condition': lambda ind: ind.action == 'hold',
-            'function': emotional_damage,
-        },
-        {
-            'type': 'conditional',
-            'condition': lambda ind: ind.action in ['buy', 'sell'],
-            'function': emotion_okay_lah,
-        },
-        {
-            'type': 'probabilistic',
-            'probability': 0.5,
-            'function': maybe_i_should_change,
-            'args': [0.1],
-        },
-        {
-            'type': 'probabilistic',
-            'probability': 0.3,
-            'function': life_is_uncertain,
-        },
-    ]
+#     # Create a list of mutation dictionaries for testing purposes
+#     mutations = [
+#         {
+#             'type': 'conditional',
+#             'condition': lambda ind: ind.action == 'hold',
+#             'function': emotional_damage,
+#         },
+#         {
+#             'type': 'conditional',
+#             'condition': lambda ind: ind.action in ['buy', 'sell'],
+#             'function': emotion_okay_lah,
+#         },
+#         {
+#             'type': 'probabilistic',
+#             'probability': 0.5,
+#             'function': maybe_i_should_change,
+#             'args': [0.1],
+#         },
+#         {
+#             'type': 'probabilistic',
+#             'probability': 0.3,
+#             'function': life_is_uncertain,
+#         },
+#     ]
 
-    # Apply mutation transformation to the individual
-    mutation_transformation(individual1, best_individual, generation, mutations)
+#     # Apply mutation transformation to the individual
+#     mutation_transformation(individual1, best_individual, generation, mutations)
 
-    # Print the individual's properties after mutation
-    print("Wallet:", individual1.wallet)
-    print("Emotional resiliency:", individual1.emotional_resiliency)
-    print("ANN weights:", individual1.ann.weights)
+#     # Print the individual's properties after mutation
+#     print("Wallet:", individual1.wallet)
+#     print("Emotional resiliency:", individual1.emotional_resiliency)
+#     print("ANN weights:", individual1.ann.weights)
 
-    # Create a simple configuration dictionary for testing purposes
-    config = {
-        'life_is_uncertain_sigma_wallet': 100,
-        'life_is_uncertain_sigma_emotion_resiliency': 1 / 3,
-        'life_is_uncertain_sigma_ann': 0.1,
-    }
+#     # Create a simple configuration dictionary for testing purposes
+#     config = {
+#         'life_is_uncertain_sigma_wallet': 100,
+#         'life_is_uncertain_sigma_emotion_resiliency': 1 / 3,
+#         'life_is_uncertain_sigma_ann': 0.1,
+#     }
 
-    # Update the 'args' field in the mutation dictionary for the 'life_is_uncertain' mutation function
-    mutations[-1]['args'] = [config]
+#     # Update the 'args' field in the mutation dictionary for the 'life_is_uncertain' mutation function
+#     mutations[-1]['args'] = [config]
 
-    # Apply mutation transformation to the individual again, this time with the updated configuration
-    mutation_transformation(individual1, best_individual, generation, mutations)
+#     # Apply mutation transformation to the individual again, this time with the updated configuration
+#     mutation_transformation(individual1, best_individual, generation, mutations)
 
-    # Print the individual's properties after the second mutation
-    print("Wallet (after 2nd mutation):", individual1.wallet)
-    print("Emotional resiliency (after 2nd mutation):", individual1.emotional_resiliency)
-    print("ANN weights (after 2nd mutation):", individual1.ann.weights)
+#     # Print the individual's properties after the second mutation
+#     print("Wallet (after 2nd mutation):", individual1.wallet)
+#     print("Emotional resiliency (after 2nd mutation):", individual1.emotional_resiliency)
+#     print("ANN weights (after 2nd mutation):", individual1.ann.weights)

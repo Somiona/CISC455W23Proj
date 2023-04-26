@@ -59,3 +59,12 @@ def rank_pointer_selection(population, fitness, rank_level, mating_pool_size):
         mating_pool.append(chosen_individual)
 
     return mating_pool
+
+
+def random_pair(population):
+    """
+    Input: [Investor] - population
+    Output: [[Investor, Investor]]
+    """
+    np.random.shuffle(population)
+    return [[population[i],population[i+1]] for i in range(0, int(len(population)/2)+2,2)]

@@ -108,7 +108,7 @@ class Stock:
 
 
 class Investor:
-    def __init__(self, name, wallet, emotion, death, shares, ann_mean, ann_sd):
+    def __init__(self, name, wallet, emotion, death, shares, ann_mean, ann_sd, num_gen):
         self.name = name
         self.wallet = wallet
         self.ann = ANN(ann_mean, ann_sd)
@@ -118,6 +118,8 @@ class Investor:
         self.death = death
         self.shares = shares
         self.time_to_die = False
+        self.action_history = np.zeros(num_gen)
+        self.action_value = None
     
 
     def aging(self):
@@ -128,12 +130,34 @@ class Investor:
         self.current += 1
         self.time_to_die = self.current == self.death
 
+    def add_wallet(self, value):
+        self.wallet += value
+        self.wallet = 0 if self.wallet <= 0 else self.wallet
 
-    def decide_action(self, market):
+    def add_emotion(self, value):
+        self.emotion += value
+        if not 0 <= self.emotion <= 1:
+            if self.emotion <= 0:
+                self.emotion = 0
+            else: # >= 1
+                self.emotion = 1
+
+    def record_action(self, curr_gen, action):
         """
-        Input: [Stock] - market
+        Input: Integer - curr_gen, Integer - action
         Output: None
-        Decide Action
+        Description: action meaning - {"halt": 0, "buy": 1, "sell": -1}
+        """
+        self.action_history[curr_gen] += action
+
+    def get_action_value(self, curr_gen):
+        self.action_value = self.action_history[curr_gen]
+
+    def decide_action(self, market, curr_gen):
+        """
+        Input: [Stock] - market, Integer - curr_gen
+        Output: None
+        Description: Decide Action
         """
         np.random.shuffle(market) # So that every individual will have different order
 
@@ -146,20 +170,24 @@ class Investor:
                 if val > self.emotion: # Buy this stock
                     if stock.average_scope * (1 + abs(val)) >= self.wallet:
                         self.action.set_action(1, self.wallet, stock_name=stock.name)
+                        self.record_action(curr_gen, 1)
                     else:
                         self.action.set_action(1, stock.average_scope * (1 + abs(val)), stock_name=stock.name)
+                        self.record_action(curr_gen, 1)
                     return # Since we decide to Buy already
                 else:
                     # Sell
                     if self.shares[stock.name]:
                         share = np.random.choice(self.shares[stock.name])
                         self.action.set_action(2, (1 + abs(val)) * share.price * (1-share.failed_selling/10), stock_share=share)
+                        self.record_action(curr_gen, -1)
                         return # Since we decide to Sell already
                     else:
                         # no shares...
                         continue
         # Since all stocks are halt thus this action is halt
         self.action.set_action(0)
+        self.record_action(curr_gen, 0)
 
 
     def __str__(self) -> str:
@@ -377,7 +405,7 @@ def assign_initial_shares(investors, stocks, num_directors, stage_threshold):
 
 
 ### Test ANN ###
-# net = ANN(0,0.3)
+net = ANN(0,0.3)
 # print(net.get_weights()) # test get_weights()
 # print(net.get_weights(False)) # test get_weights()
 
@@ -395,6 +423,11 @@ def assign_initial_shares(investors, stocks, num_directors, stage_threshold):
 # print("10th weight is: " + str(net.get_weight(10)))
 # net.update_weight(10, 22)
 # print("10th weight is: " + str(net.get_weight(10)))
+
+### test add_weights(self, indices, values)
+# print(net.get_weights(False)) # test get_weights()
+# net.add_weights([1,3,5,7,9], [10,20,30,40,50])
+# print(net.get_weights(False)) # test get_weights()
 
 ### Test Investor's aging###
 # arron = Investor(1, 100, 0.5, 3, {}, 0,0.1)
@@ -485,3 +518,11 @@ def assign_initial_shares(investors, stocks, num_directors, stage_threshold):
 #     ind.decide_action(market)
 #     print(repr(ind))
 #     print(ind.action)
+
+
+
+### Test
+pop = initialize_investors(["ABC"],1)
+ind = pop[0]
+event = np.random.choice([ind.wallet, ind.emotion, ind.ann, ind.shares])
+print(event)

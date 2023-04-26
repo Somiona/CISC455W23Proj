@@ -1,29 +1,15 @@
 """
-Description: A collection of class representation and initialization methods
+Description: A collection of recombination methods
 
-Programmer: Wenqi Tang
+Programmer: Wenqi Tang, E Ching Kho
 Disclaimer: This is for Queen's University CISC 455 Team Project
             Team member: E Ching Kho, Somoina Tian, Wenqi Tang
             Python Version 3.11.2 when developing
 """
-
+# Import Files and Libraries
 import numpy as np
+from evaluation import asset_fitness
 
-### This is used for testing purpose
-
-class Individual:
-    def __init__(self, wallet, emotional_resiliency, ann, age, death_age):
-        self.wallet = wallet
-        self.emotional_resiliency = emotional_resiliency
-        self.ann = ann
-        self.age = age
-        self.death_age = death_age
-
-class ANN:
-    def __init__(self, weights):
-        self.weights = weights
-
-### The code below are the real one
 
 # Recombination functions
 def teach_me_something_bro(population, individual1, individual2, alpha, beta):
