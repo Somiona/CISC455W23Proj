@@ -10,12 +10,11 @@ Disclaimer: This is for Queen's University CISC 455 Team Project
 import numpy as np
 
 
-def asset_fitness(individual, alpha):
+def asset_fitness(individual, alpha=0.5):
     """
     Input: Investor - individual, [Stock] - market, np.float32 - alpha
     Output: int, an integer value representation its individual's fitness
     """
-    pass
     return alpha * np.float32(individual.wallet) + (1-alpha) * np.sum([share.price for shares in individual.shares.values() for share in shares])
 
 

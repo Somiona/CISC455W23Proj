@@ -8,6 +8,7 @@ Disclaimer: This is for Queen's University CISC 455 Team Project
 """
 # Import Files and Libraries
 import numpy as np
+from mutation import mutation_transformation
 
 # Classes
 class Share:
@@ -102,6 +103,8 @@ class Stock:
     def get_average_scope(self):
         return np.average(self.previous_data)
 
+    def get_stock_whole_data(self):
+        return self.price_history[self.scope_length:]
 
     def __repr__(self) -> str:
         return f'S{self.name}-(num:{self.num_shares})'
@@ -120,6 +123,7 @@ class Investor:
         self.time_to_die = False
         self.action_history = np.zeros(num_gen)
         self.action_value = None
+        self.mutation_list = mutation_transformation(self,[0.33,0.1],None,num_gen,[5,10,0],[10,10,0], True, True, True, False, True, True)
     
 
     def aging(self):
@@ -163,7 +167,7 @@ class Investor:
 
         for stock in market:
             val = self.ann.predict(stock.previous_data) # Predict based on scope of previous data of the stock
-
+            # print(val)
             if -self.emotion <= val <= self.emotion: # Halt for this stock
                 continue
             else:
@@ -189,6 +193,9 @@ class Investor:
         self.action.set_action(0)
         self.record_action(curr_gen, 0)
 
+    def mutate(self):
+        for mutation in self.mutation_list:
+            mutation.decide_function()
 
     def __str__(self) -> str:
         return f'I{self.name}'
@@ -215,6 +222,8 @@ class ANN():
 
     weights and bias are initalized using Standard Normal Distribution (https://numpy.org/doc/stable/reference/random/generated/numpy.random.randn.html)
     '''
+    layer_name = ["input_weights","input_biases", "hidden_weights", "hidden_biases", "output_weights", "output_bias"]
+
     def __init__(self, mean=0, sd=0.1):
         self.input_weights = np.random.normal(mean,sd,30)
         self.input_biases = np.random.normal(mean,sd,30)
@@ -255,24 +264,41 @@ class ANN():
                 "hidden_biases": self.hidden_biases,
                 "output_weights": self.output_weights,
                 "output_bias": self.output_bias,
-                "total weights & bias": self.total_weights
             }
 
     def add_weight(self, index, value):
-        weight, i = self._get_weight_by_index(index)
-        weight[i] += value
+        weight, pos = self._get_weight_by_index(index)
+        if isinstance(pos, tuple):
+            i, j = pos
+            weight[i, j] += value
+        else:
+            weight[pos] += value
 
     def add_weights(self, indices, values):
         for index, value in zip(indices, values):
             self.add_weight(index, value)
+
+
+    def add_everything(self, values):
+        self.input_weights += values["input_weights"]
+        self.input_biases += values["input_biases"]
+        self.hidden_weights += values["hidden_weights"]
+        self.hidden_biases += values["hidden_biases"]
+        self.output_weights += values["output_weights"]
+        self.output_bias += values["output_bias"]
+
 
     def add_all_weights(self, value):
         for i in range(381):
             self.add_weight(i, value)
 
     def update_weight(self, index, value):
-        weight, i = self._get_weight_by_index(index)
-        weight[i] = value
+        weight, pos = self._get_weight_by_index(index)
+        if isinstance(pos, tuple):
+            i, j = pos
+            weight[i, j] = value
+        else:
+            weight[pos] = value
 
     def _get_weight_by_index(self, index):
         if 0 <= index <= 29:
@@ -292,7 +318,7 @@ class ANN():
             return self.output_weights, index
         index -= 10
         if index == 0:
-            return self.output_bias, 0
+            return [self.output_bias], 0
         raise IndexError("Invalid weight index")
 
 
@@ -342,13 +368,13 @@ class Action():
         return f'A-{self.encode[self.action_num]}(price:{self.price},stock_name:{self.stock_name},share:{self.stock_share},{"T" if self.transaction else "F"})'
 
 
-def initialize_investors(stock_names, num_ind, wallet=200, emotion=0.5, death_mean=75, death_sd=10, ann_mean=0, ann_sd=0.1):
+def initialize_investors(stock_names, num_ind, wallet=200, emotion=0.5, death_mean=75, death_sd=10, ann_mean=0, ann_sd=0.4, num_gen=100):
     """
     Input: Integer - num_ind, Float - wallet, Float - emotion, Integer - death_mean, Integer - death_sd, [String] - stock_names
     Output: np.Array(Investor)
     Initialize Investors
     """
-    investors = [Investor(i, wallet, emotion, int(np.random.normal(death_mean, death_sd)), {name: [] for name in stock_names}, ann_mean, ann_sd) for i in range(num_ind)]
+    investors = [Investor(i, wallet, emotion, int(np.random.normal(death_mean, death_sd)), {name: [] for name in stock_names}, ann_mean, ann_sd, num_gen) for i in range(num_ind)]
     return np.array(investors)
 
 
@@ -405,7 +431,7 @@ def assign_initial_shares(investors, stocks, num_directors, stage_threshold):
 
 
 ### Test ANN ###
-net = ANN(0,0.3)
+# net = ANN(0,0.3)
 # print(net.get_weights()) # test get_weights()
 # print(net.get_weights(False)) # test get_weights()
 
@@ -519,10 +545,3 @@ net = ANN(0,0.3)
 #     print(repr(ind))
 #     print(ind.action)
 
-
-
-### Test
-pop = initialize_investors(["ABC"],1)
-ind = pop[0]
-event = np.random.choice([ind.wallet, ind.emotion, ind.ann, ind.shares])
-print(event)

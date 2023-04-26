@@ -8,22 +8,49 @@ Disclaimer: This is for Queen's University CISC 455 Team Project
 """
 # Import Files and Libraries
 import numpy as np
-from initialization import Share, Stock, Investor, ANN, Action, initialize_investors, initialize_stock, assign_initial_shares
+from initialization import initialize_investors, initialize_stock, assign_initial_shares
+from evaluation import asset_fitness
+from parent_selection import ranking, rank_pointer_selection, random_pair
+from recombination import teach_me_something_bro
+import matplotlib.pyplot as plt
 
-def ea(pop_size, wallet, emotion, death_mean, death_sd, num_directors, market_names, num_shares, num_gen=30):
+def ea(pop_size, wallet, emotion, death_mean, death_sd, num_directors, market_names, num_shares, num_gen, k, fitness_alpha, recom_alpha, recom_beta):
+    """
+    Input: Integer - pop_size, Float - wallet, Float - emotion, Integer - death_mean, Integer - death_sd, Integer - num_directors, [String] - market_names, Integer - num_shares, Integer - num_gen, Integer - k, Float - fitness_alpha, Float - recom_alpha, Float - recom_beta
+    Output: [Stock]
+    Description: Stock Simulation Evolutionary Algorithm
+    """
     # Initialization
     market = initialize_stock(len(market_names),num_shares, num_gen, market_names)
     population = initialize_investors(market_names, pop_size, wallet, emotion, death_mean, death_sd)
-    assign_initial_shares(population, market, num_directors, 10)
+    assign_initial_shares(population, market, num_directors, 8)
     
     # Loop
     for curr_gen in range(num_gen):
         # Action Rundown
-        action_rundown(3, population, market, curr_gen)
-    
-    for stock in market:
-        print(stock)
-        print(stock.price_history)
+        action_rundown(k, population, market, curr_gen)
+
+        # Fitness evaluation (Future Work)
+        # fitness = []
+        # for ind in population:
+        #     fitness.append(asset_fitness(ind, fitness_alpha))
+
+        # Parent selection
+        parents = random_pair(population)
+
+        # Mutation Transformation
+        for ind in population:
+            ind.mutate()
+        
+        # Recombination Transformation
+        for (ind1, ind2) in parents:
+            teach_me_something_bro(ind1, ind2, recom_alpha, recom_beta)
+        
+        # Generate Offspring (Future Work)
+
+        # Environment Selection (Future Work)
+
+    return market
 
 
 def get_stock_names(market):
@@ -42,9 +69,16 @@ def action_rundown(k, population, market, curr_gen):
     for _ in range(k):
         # Action Decide
         for ind in population:
-            ind.decide_action(market)
+            ind.decide_action(market, curr_gen)
+
+        # for ind in population:
+        #     print(ind.action)
+        # for ind in population:
+        #     print(ind.emotion)
+
         # Intraday Trading
         transactions = intraday_trading(population, get_stock_names(market))
+        # print(transactions)
         # Update Stock's last price
         for stock in market:
             stock.last_price = np.round((np.sum(transactions[stock.name]) + (stock.num_shares - len(transactions[stock.name]))*stock.last_price)/stock.num_shares,2)
@@ -60,7 +94,7 @@ def action_rundown(k, population, market, curr_gen):
 def intraday_trading(population, market_names):
     intraday = {stock: [[],[]] for stock in market_names} # {"stock": [[],[]]} index 0 is Individual who Buy, index 1 is Individual who Sell 
     transactions = {stock: [] for stock in market_names} # Store Success Transactions' Sold Price
-
+    
     # Collect Individual based on Action
     for ind in population:
         if ind.action.action_num != 0:
@@ -154,4 +188,18 @@ def buy(buyer, seller):
 # assign_initial_shares(population, market, 2)
 
 ### Test ea
-# ea(50, 200.0, 0.3, 75, 5, 5, ["ABC","XYZ"], 100)
+market = ea(50, 200.0, 0.1, 100, 0, 5, ["ABC","XYZ"], 100, 100, 3, 0.5, 0.05, 0.05)
+for stock in market:
+    # plt.figure()
+    # plt.plot(np.arange(100), stock.get_stock_whole_data())
+    # plt.title("Stock " + stock.name + " Price")
+    # plt.xlabel("Generation")
+    # plt.ylabel("Price Data")
+    # plt.savefig(stock.name + ".png")
+
+    plt.plot(np.arange(100), stock.get_stock_whole_data())
+    plt.title("Stock Simulation")
+    plt.xlabel("Generation")
+    plt.ylabel("Price Data")
+    plt.legend(["ABC","XYZ"])
+    plt.savefig(stock.name + ".png")

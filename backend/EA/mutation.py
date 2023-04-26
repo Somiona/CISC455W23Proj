@@ -7,30 +7,7 @@ Disclaimer: This is for Queen's University CISC 455 Team Project
 """
 # Import Files and Libraries
 import numpy as np
-from initialization import Share, Stock, Investor, ANN, Action
 
-# ### The code below are the real one
-#  {
-#             'type': 'conditional',
-#             'condition': lambda ind: ind.action == 'hold',
-#             'function': emotional_damage,
-#         },
-#         {
-#             'type': 'conditional',
-#             'condition': lambda ind: ind.action in ['buy', 'sell'],
-#             'function': emotion_okay_lah,
-#         },
-#         {
-#             'type': 'probabilistic',
-#             'probability': 0.5,
-#             'function': maybe_i_should_change,
-#             'args': [0.1],
-#         },
-#         {
-#             'type': 'probabilistic',
-#             'probability': 0.3,
-#             'function': life_is_uncertain,
-#         },
 
 class Mutation:
     curr_gen = 0 # When initialization, the current generation is 0
@@ -43,10 +20,10 @@ class Mutation:
         """
         self.individual = individual
         self.type = type
-        self.prob = probability
+        self.probability = probability
         self.functions = functions
         self.cycle = np.arange(start_gen, num_gen, cycle_num)
-        self.condition = conditions
+        self.conditions = conditions
         self.arguments = arguments
         self.start_gen = start_gen
     
@@ -81,7 +58,8 @@ def emotional_damage(individual):
     Description: Decreases the individual's emotional resiliency by a random value between 0 and 1 (bounded between [0, 1])
     """
     # Subtract a random value between 0 and 1 from emotional resiliency, and clip it to be within the range [0, 1]
-    individual.emotion = max(0, individual.emotion - np.random.uniform())
+    # individual.emotion = max(0, individual.emotion - np.random.uniform()/5)
+    individual.emotion = max(0, individual.emotion - 0.1)
 
 
 def emotion_okay_lah(individual):
@@ -91,10 +69,10 @@ def emotion_okay_lah(individual):
     Description: Increase the individual's emotional resiliency by a random value between 0 and 1 (bounded between [0, 1])
     """
     # Add a random value between 0 and 1 to emotional resiliency, and clip it to be within the range [0, 1]
-    individual.emotion = min(1, individual.emotion + np.random.uniform())
+    individual.emotion = min(1, individual.emotion + np.random.uniform()/5) 
+    individual.emotion = min(1, individual.emotion + 0.1) 
 
 
-# 
 def get_salary(individual, gain_wallet):
     """
     Input: Investor - individual, Float - gain_wallet
@@ -117,7 +95,6 @@ def pay_for_survival(individual, loss_wallet):
     individual.emotion *= (1 + loss_wallet/individual.wallet)
 
 
-# 
 def learn_from_rich(individual, best_individual):
     """
     Input: Investor - individual, Investor - best_individual
@@ -137,15 +114,15 @@ def maybe_i_should_change(individual, sigma):
     Description: Add random values (from a normal distribution) to some weights of an individual's ANN model
     """
     # Select a random number of weights to change
-    num_weights_to_change = np.random.choice(1, np.arange(individual.total_weights))
+    num_weights_to_change = np.random.choice(np.arange(1,individual.ann.total_weights))
 
     # Randomly choice those weights
-    random_weight_indices = np.random.choice(np.arange(individual.total_weighs), num_weights_to_change, replace=False)
+    random_weight_indices = np.random.choice(np.arange(individual.ann.total_weights, dtype=int), num_weights_to_change, replace=False)
+
     # Add random values from a normal distribution with mean 0 and standard deviation sigma to those weights
     individual.ann.add_weights(random_weight_indices, np.random.normal(0, sigma, num_weights_to_change))
     
 
-# Modifies wallet, emotional resiliency, ANN, or shares_hold with equal probability
 def life_is_uncertain(individual, config={"wallet": 50,"emotion": 0.1,"ann": 0.01}, probabilities=np.ones(4)/4):
     """
     Input: Investor - individual, {String: Float} - config, [Float] - probabilities,
@@ -162,7 +139,7 @@ def life_is_uncertain(individual, config={"wallet": 50,"emotion": 0.1,"ann": 0.0
     
     if event == 'wallet':
         # Update wallet with a random value from a normal distribution with mean 0 and standard deviation specified in config
-        individual.add_wallet(np.ranodm.normal(0, config["wallet"]))
+        individual.add_wallet(np.random.normal(0, config["wallet"]))
 
     elif event == 'emotion_resiliency':
         # Update emotional resiliency with a random value from a normal distribution with mean 0 and standard deviation specified in config
@@ -172,18 +149,18 @@ def life_is_uncertain(individual, config={"wallet": 50,"emotion": 0.1,"ann": 0.0
         maybe_i_should_change(individual, config["ann"])
 
     elif event == 'shares_hold':
-        if individual.shares:
-            # Randomly select a stock
-            stock_shares = individual.shares[np.random.choice([stock for stock in individual.shares.keys()])]
+        # Randomly select a stock
+        stock_shares = individual.shares[np.random.choice([stock for stock in individual.shares.keys()])]
+        if stock_shares:
             # Randomly select a share
             share = np.random.choice(stock_shares)
             # Randomize its failed selling counter between [0, 10]
             share.failed_selling = np.random.choice(np.arange(11))
 
 
-def mutation_transformation(individual, prob_list, best_ind, num_gen, emo_cond, sal_peri, pay_peri, learn_peri, change, uncertain):
+def mutation_transformation(individual, prob_list, best_ind, num_gen, start_gen, cycles, emo_cond, sal_peri, pay_peri, learn_peri, change, uncertain):
     """
-    Input: Investor - individual, [Float] - prob_list, Investor - best_ind, Integer - num_gen, Boolean - emo_cond, Boolean - sal_peri, Boolean - pay_peri, Boolean - learn_peri, Boolean - change, Boolean - uncertain
+    Input: Investor - individual, [Float] - prob_list, Investor - best_ind, Integer - num_gen, [Integer] - start_gen, [Integer] - cycles, Boolean - emo_cond, Boolean - sal_peri, Boolean - pay_peri, Boolean - learn_peri, Boolean - change, Boolean - uncertain
     Output: [Mutation]
     Description: initialize a list of Mutation
     """
@@ -191,11 +168,11 @@ def mutation_transformation(individual, prob_list, best_ind, num_gen, emo_cond, 
     if emo_cond:
         mu_list.append(Mutation(individual, "Conditional", 1, [emotional_damage, emotion_okay_lah],conditions=[lambda ind: ind.action_value == 0, lambda ind: ind.action_value != 0]))
     if sal_peri:
-        mu_list.append(Mutation(individual, "periodic", 1, [get_salary], num_gen, 5, 10, arguments=[np.random.normal(75, 15)]))
+        mu_list.append(Mutation(individual, "periodic", 1, [get_salary], num_gen, start_gen[0], cycles[0], arguments=[np.random.normal(75, 15)]))
     if pay_peri:
-        mu_list.append(Mutation(individual, "periodic", 1, [pay_for_survival], num_gen, 10, 10, arguments=[np.random.normal(50, 10)]))
+        mu_list.append(Mutation(individual, "periodic", 1, [pay_for_survival], num_gen, start_gen[1], cycles[1], arguments=[np.random.normal(50, 10)]))
     if learn_peri:
-        mu_list.append(Mutation(individual, "periodic", 1, [learn_peri], num_gen, 5, 20, arguments=[best_ind]))
+        mu_list.append(Mutation(individual, "periodic", 1, [learn_peri], num_gen, start_gen[2], cycles[2], arguments=[best_ind]))
     if change:
         mu_list.append(Mutation(individual, "probablistic", prob_list[0], [maybe_i_should_change], arguments=[0.01]))
     if uncertain:

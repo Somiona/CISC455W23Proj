@@ -12,36 +12,39 @@ from evaluation import asset_fitness
 
 
 # Recombination functions
-def teach_me_something_bro(population, individual1, individual2, alpha, beta):
-    # Determine which individual is less fit
-    if individual1.wallet < individual2.wallet:
+def teach_me_something_bro(individual1, individual2, alpha, beta):
+    # Determine which individual is fitter
+    if asset_fitness(individual1) < asset_fitness(individual2):
         learner, fitter = individual1, individual2
     else:
         learner, fitter = individual2, individual1
 
     # Calculate learning distance for ANN
-    learn_distance = np.array(fitter.ann.weights) - np.array(learner.ann.weights)
+    layer_names = fitter.ann.layer_name
+    learn_distance = {weights:fitter.ann.get_weights(False)[weights] - learner.ann.get_weights(False)[weights] for weights in layer_names}
 
     # Update learner's ANN
-    learner.ann.weights += alpha * learn_distance
+    learner.ann.add_everything({weights:learn_distance[weights] * alpha for weights in layer_names})
 
     # Update fitter's ANN
-    fitter.ann.weights += (1 - alpha) / 2 * (-learn_distance)
+    fitter.ann.add_everything({weights:learn_distance[weights] * -(1-alpha)/2 for weights in layer_names})
 
     # Calculate thank you money
-    thank_you_money = learner.wallet * beta
+    thank_you_money = np.round(learner.wallet * beta,2)
 
     # Update wallets
-    learner.wallet -= thank_you_money
-    fitter.wallet += thank_you_money
+    learner.add_wallet(-thank_you_money)
+    fitter.add_wallet(thank_you_money)
 
-def new_investors(population, new_investors_list):
-    # Identify individuals that have reached their death age
-    dead_individuals = [ind for ind in population if ind.age >= ind.death_age]
 
-    # Replace dead individuals with new investors
-    for dead_ind, new_investor in zip(dead_individuals, new_investors_list):
-        population[population.index(dead_ind)] = new_investor
+def new_investors(parents, new_ind_size, mutation):
+    """
+    Input: [Investor] - parents, Integer - new_ind_size
+    Output: [Investor]
+    """
+    pass
+
+
 
 # Add other recombination functions here
 
@@ -77,40 +80,40 @@ def recombination_transformation(population, generation, recombinations):
                 # Apply the recombination function specified in the recombination dictionary with the additional arguments
                 recombination['function'](population, *recombination['args'])
 
-# Test the functions
-if __name__ == "__main__":
-    # Example population
-    population = [
-        Individual(100, 0.5, ANN([1, 2, 3]), 3, 10),
-        Individual(200, 0.6, ANN([4, 5, 6]), 5, 15),
-        Individual(300, 0.7, ANN([7, 8, 9]), 8, 20),
-    ]
+# # Test the functions
+# if __name__ == "__main__":
+#     # Example population
+#     population = [
+#         Individual(100, 0.5, ANN([1, 2, 3]), 3, 10),
+#         Individual(200, 0.6, ANN([4, 5, 6]), 5, 15),
+#         Individual(300, 0.7, ANN([7, 8, 9]), 8, 20),
+#     ]
 
-    # Print the initial population
-    print("Initial population:")
-    for ind in population:
-        print(vars(ind))
+#     # Print the initial population
+#     print("Initial population:")
+#     for ind in population:
+#         print(vars(ind))
 
-    # Example recombinations
-    recombinations = [
-        {
-            'type': 'absolute',
-            'function': teach_me_something_bro,
-            'args': (population[0], population[1], 0.5, 0.25),
-        },
-        {
-            'type': 'periodic',
-            'function': new_investors,
-            'period': 5,
-            'args': ([Individual(400, 0.8, ANN([10, 11, 12]), 0, 10)],),
-        },
-    ]
+#     # Example recombinations
+#     recombinations = [
+#         {
+#             'type': 'absolute',
+#             'function': teach_me_something_bro,
+#             'args': (population[0], population[1], 0.5, 0.25),
+#         },
+#         {
+#             'type': 'periodic',
+#             'function': new_investors,
+#             'period': 5,
+#             'args': ([Individual(400, 0.8, ANN([10, 11, 12]), 0, 10)],),
+#         },
+#     ]
 
-    generation = 5
-    recombination_transformation(population, generation, recombinations)
+#     generation = 5
+#     recombination_transformation(population, generation, recombinations)
 
-    # Print the population after applying the recombinations
-    print("\nPopulation after recombination transformation:")
-    for ind in population:
-        print(vars(ind))
+#     # Print the population after applying the recombinations
+#     print("\nPopulation after recombination transformation:")
+#     for ind in population:
+#         print(vars(ind))
 
