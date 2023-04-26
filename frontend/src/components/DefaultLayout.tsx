@@ -8,7 +8,6 @@ import { Open_Sans } from "next/font/google";
 import { FCwCC } from "utils/BetterFC";
 import SideNav, { PossiblePages } from "./SideNav";
 import NavBar from "./NavBar";
-import { prop } from "ramda";
 
 // eslint-disable-next-line no-unused-vars
 const open_sans = Open_Sans({
