@@ -107,7 +107,7 @@ class Stock:
         return self.price_history[self.scope_length:]
 
     def __repr__(self) -> str:
-        return f'S{self.name}-(num:{self.num_shares})'
+        return f'S{self.name}-(num:{self.num_shares}, $:{self.last_price})'
 
 
 class Investor:

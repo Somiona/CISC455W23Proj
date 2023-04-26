@@ -168,7 +168,7 @@ def mutation_transformation(individual, prob_list, best_ind, num_gen, start_gen,
     if emo_cond:
         mu_list.append(Mutation(individual, "Conditional", 1, [emotional_damage, emotion_okay_lah],conditions=[lambda ind: ind.action_value == 0, lambda ind: ind.action_value != 0]))
     if sal_peri:
-        mu_list.append(Mutation(individual, "periodic", 1, [get_salary], num_gen, start_gen[0], cycles[0], arguments=[np.random.normal(75, 15)]))
+        mu_list.append(Mutation(individual, "periodic", 1, [get_salary], num_gen, start_gen[0], cycles[0], arguments=[np.random.normal(100, 15)]))
     if pay_peri:
         mu_list.append(Mutation(individual, "periodic", 1, [pay_for_survival], num_gen, start_gen[1], cycles[1], arguments=[np.random.normal(50, 10)]))
     if learn_peri:
