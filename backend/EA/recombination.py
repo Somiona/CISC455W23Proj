@@ -21,7 +21,11 @@ def teach_me_something_bro(individual1, individual2, alpha, beta):
 
     # Calculate learning distance for ANN
     layer_names = fitter.ann.layer_name
-    learn_distance = {weights:fitter.ann.get_weights(False)[weights] - learner.ann.get_weights(False)[weights] for weights in layer_names}
+    change_numbers = np.random.choice(np.arange(len(layer_names)))
+    change_layers_index = np.random.choice(np.arange(len(layer_names)), change_numbers, replace=False)
+    change_layers = [layer_names[i] for i in change_layers_index]
+
+    learn_distance = {weights:fitter.ann.get_weights(False)[weights] - learner.ann.get_weights(False)[weights] if weights in change_layers else learner.ann.get_weights(False)[weights] * 0 for weights in layer_names}
 
     # Update learner's ANN
     learner.ann.add_everything({weights:learn_distance[weights] * alpha for weights in layer_names})

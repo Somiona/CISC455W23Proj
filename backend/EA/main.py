@@ -13,17 +13,17 @@ from evaluation import asset_fitness
 from parent_selection import ranking, rank_pointer_selection, random_pair
 from recombination import teach_me_something_bro
 import matplotlib.pyplot as plt
+import sys
 
-
-def ea(pop_size, wallet, emotion, death_mean, death_sd, num_directors, market_names, num_shares, p_stock_mean, p_stock_sd, scope_length, p_share_sd, num_gen, k, fitness_alpha, recom_alpha, recom_beta):
+def ea(pop_size, wallet, emotion, death_mean, death_sd, mutation_config, num_directors, market_names, num_shares, p_stock_mean, p_stock_sd, scope_length, p_share_sd, num_gen, depreciate_ratio, k, fitness_alpha, recom_alpha, recom_beta):
     """
-    Input: Integer - pop_size, Float - wallet, Float - emotion, Integer - death_mean, Integer - death_sd, Integer - num_directors, [String] - market_names, Integer - num_shares, Integer - p_stock_mean, Integer - p_stock_sd, Integer - scope_length, Integer - p_share_sd, Integer - num_gen, Integer - k, Float - fitness_alpha, Float - recom_alpha, Float - recom_beta
+    Input: Integer - pop_size, Float - wallet, Float - emotion, Integer - death_mean, Integer - death_sd, [[Float],Investor,Integer,[Integer],[Integer], Bool, Bool, Bool, Bool, Bool, Bool]] - mutation_config ,Integer - num_directors, [String] - market_names, Integer - num_shares, Integer - p_stock_mean, Integer - p_stock_sd, Integer - scope_length, Integer - p_share_sd, Integer - num_gen, Float - depreciate_ratio, Integer - k, Float - fitness_alpha, Float - recom_alpha, Float - recom_beta
     Output: [Stock]
     Description: Stock Simulation Evolutionary Algorithm
     """
     # Initialization
     market = initialize_stock(len(market_names),num_shares, num_gen, market_names, p_stock_mean, p_stock_sd, scope_length, p_share_sd)
-    population = initialize_investors(market_names, pop_size, wallet, emotion, death_mean, death_sd)
+    population = initialize_investors(market_names, pop_size, mutation_config, wallet, emotion, death_mean, death_sd)
     assign_initial_shares(population, market, num_directors, 8)
     
     print("Initialization Completed")
@@ -43,16 +43,15 @@ def ea(pop_size, wallet, emotion, death_mean, death_sd, num_directors, market_na
         # Action Rundown
         action_rundown(k, population, market, curr_gen)
 
-        
         print("Population:")
         for ind in population:
             print(repr(ind))
         print()
 
         # Fitness evaluation (Future Work)
-        # fitness = []
-        # for ind in population:
-        #     fitness.append(asset_fitness(ind, fitness_alpha))
+        fitness = []
+        for ind in population:
+            fitness.append(asset_fitness(ind, fitness_alpha))
 
         # Parent selection
         parents = random_pair(population)
@@ -69,7 +68,7 @@ def ea(pop_size, wallet, emotion, death_mean, death_sd, num_directors, market_na
 
         # Environment Selection (Future Work)
 
-    return market
+    return market, population[np.argmax(fitness)]
 
 
 def get_stock_names(market):
@@ -104,7 +103,12 @@ def action_rundown(k, population, market, curr_gen):
 
         # Update Stock's last price
         for stock in market:
-            stock.last_price = np.round((np.sum(transactions[stock.name]) + (stock.num_shares - len(transactions[stock.name]))*stock.last_price)/stock.num_shares,2)
+            if transactions[stock.name]:
+                stock.last_price = np.round((np.sum(transactions[stock.name]) + (stock.num_shares - len(transactions[stock.name]))*stock.last_price)/stock.num_shares,2)
+            else: # no transaction and thus stock will depreicated 
+                print("Depreciated")
+                stock.depreciate_all_shares(depreciate_ratio)
+                stock.last_price = np.round(np.sum([share.price for share in stock.shares]) / stock.num_shares, 2)
         # Reset Every Indivdual's Action (Just in case even though it replaces the previous action)
         for ind in population:
             ind.action.reset()
@@ -211,36 +215,55 @@ def buy(buyer, seller):
 # assign_initial_shares(population, market, 2)
 
 ### Test ea ###
-pop_size        = 20
-wallet          = 500.0
-emotion         = 0.5
-death_mean      = 100
-death_sd        = 0
-num_directors   = 4
-market_names    = ["ABC", "XYZ"]
-num_shares      = 50
-p_stock_mean    = 100
-p_stock_sd      = 20
-scope_length    = 30
-p_share_sd      = 10
-num_gen         = 100
-k               = 3
-fitness_alpha   = 0.5
-recom_alpha     = 0.05
-recom_beta      = 0.05
+pop_size          = 20
+wallet            = 500.0
+emotion           = 0.5
+death_mean        = 100
+death_sd          = 0
+num_directors     = 4
+market_names      = ["ABC", "XYZ"]
+num_shares        = 50
+p_stock_mean      = 100
+p_stock_sd        = 20
+scope_length      = 30
+p_share_sd        = 10
+num_gen           = 100
+depreciate_ratio  = 0.9
+k                 = 3
+fitness_alpha     = 0.5
+recom_alpha       = 0.05
+recom_beta        = 0.05
+mutation_config   = [[1,0.25],None,num_gen,[5,10,0],[10,10,0], True, True, True, False, True, True]
 
-market = ea(pop_size, wallet, emotion, death_mean, death_sd, num_directors, market_names, num_shares, p_stock_mean, p_stock_sd, scope_length, p_share_sd, num_gen, k, fitness_alpha, recom_alpha, recom_beta)
-for stock in market:
-    # plt.figure()
-    # plt.plot(np.arange(100), stock.get_stock_whole_data())
-    # plt.title("Stock " + stock.name + " Price")
-    # plt.xlabel("Generation")
-    # plt.ylabel("Price Data")
-    # plt.savefig(stock.name + ".png")
+### Store print run result in the results folder
+path = "results/hyper2/"
 
-    plt.plot(np.arange(num_gen), stock.get_stock_whole_data())
-    plt.title("Stock Simulation")
-    plt.xlabel("Generation")
-    plt.ylabel("Price Data")
-    plt.legend(["ABC","XYZ"])
-plt.savefig("Stock.png")
+num_iteration = 10
+for i in range(1, num_iteration+1):
+    sys.stdout = open(path + "result" + str(i) + ".txt",'w+')
+
+    market, best_ind = ea(pop_size, wallet, emotion, death_mean, death_sd, mutation_config,num_directors, market_names, num_shares, p_stock_mean, p_stock_sd, scope_length, p_share_sd, num_gen, depreciate_ratio, k, fitness_alpha, recom_alpha, recom_beta)
+    for stock in market:
+        # plt.figure()
+        # plt.plot(np.arange(100), stock.get_stock_whole_data())
+        # plt.title("Stock " + stock.name + " Price")
+        # plt.xlabel("Generation")
+        # plt.ylabel("Price Data")
+        # plt.savefig(stock.name + ".png")
+
+        plt.plot(np.arange(num_gen), stock.get_stock_whole_data())
+        plt.title("Stock Simulation")
+        plt.xlabel("Generation")
+        plt.ylabel("Price Data")
+        plt.legend(["ABC","XYZ"])
+    plt.savefig(path + "Stock" + str(i) + ".png")
+    plt.figure()
+
+    print("Best Individual:")
+    print(best_ind)
+    for stock, share_list in best_ind.shares.items():
+        print("Stock: " + stock)
+        print("Shares it own: " + str(len(share_list)))
+
+### Close Writing file
+sys.stdout.close()

@@ -52,8 +52,11 @@ class Share:
         self.update_history()
 
 
+    def depreciate(self, depreciate_ratio):
+        self.price = np.round(self.price * depreciate_ratio,2)
+
     def __str__(self) -> str:
-        return f'{self.stock.name}:{self.id}'
+        return f'{self.stock.name}:{self.id}({self.failed_selling})'
 
     def __repr__(self) -> str:
         return f'{self.stock.name}:{self.id}-($:{self.price},under:{self.owner})'
@@ -78,7 +81,7 @@ class Stock:
         self.price_history[scope_length-1] = np.round(total_price/num_shares,2)
 
         # Obtain previous data information
-        self.previous_data = self.get_stock_data(0)
+        self.previous_data = self.get_stock_data_scope(0)
         self.average_scope = self.get_average_scope()
         self.last_price = self.price_history[scope_length-1]
 
@@ -90,11 +93,11 @@ class Stock:
         Update information of the stock
         """
         self.price_history[self.scope_length + curr_gen] = price # Update Price
-        self.previous_data = self.get_stock_data(curr_gen)
+        self.previous_data = self.get_stock_data_scope(curr_gen)
         self.average_scope = self.get_average_scope()
 
 
-    def get_stock_data(self, curr_gen): 
+    def get_stock_data_scope(self, curr_gen): 
         """
         Input: Integer - curr_gen
         Output: np.array(Float)
@@ -109,12 +112,17 @@ class Stock:
     def get_stock_whole_data(self):
         return self.price_history[self.scope_length:]
 
+    def depreciate_all_shares(self, depreciate_ratio):
+        for share in self.shares:
+            share.depreciate(depreciate_ratio)
+
+
     def __repr__(self) -> str:
         return f'S{self.name}-(num:{self.num_shares}, $:{self.last_price})'
 
 
 class Investor:
-    def __init__(self, name, wallet, emotion, death, shares, ann_mean, ann_sd, num_gen):
+    def __init__(self, name, wallet, emotion, death, shares, ann_mean, ann_sd, num_gen, mutation_config):
         self.name = name
         self.wallet = wallet
         self.ann = ANN(ann_mean, ann_sd)
@@ -125,7 +133,7 @@ class Investor:
         self.shares = shares
         self.time_to_die = False
         self.trade_value = False
-        self.mutation_list = mutation_transformation(self,[0.33,0.1],None,num_gen,[5,10,0],[10,10,0], True, True, True, False, True, True)
+        self.mutation_list = mutation_transformation(self, *mutation_config)
     
 
     def aging(self):
@@ -176,7 +184,7 @@ class Investor:
                     # Sell
                     if self.shares[stock.name]:
                         share = np.random.choice(self.shares[stock.name])
-                        self.action.set_action(2, (1 + abs(val)) * share.price * (1-share.failed_selling/10), stock_share=share)
+                        self.action.set_action(2, (1 + abs(val)) * share.price * (1-(share.failed_selling/10)), stock_share=share)
                         return # Since we decide to Sell already
                     else:
                         # no shares...
@@ -359,13 +367,15 @@ class Action():
         return f'A-{self.encode[self.action_num]}(price:{self.price},stock_name:{self.stock_name},share:{self.stock_share},{"T" if self.transaction else "F"})'
 
 
-def initialize_investors(stock_names, num_ind, wallet=200, emotion=0.5, death_mean=75, death_sd=10, ann_mean=0, ann_sd=0.4, num_gen=100):
+def initialize_investors(stock_names, num_ind, mutation_config=None, wallet=200, emotion=0.5, death_mean=75, death_sd=10, ann_mean=0, ann_sd=0.4, num_gen=100):
     """
     Input: Integer - num_ind, Float - wallet, Float - emotion, Integer - death_mean, Integer - death_sd, [String] - stock_names
     Output: np.Array(Investor)
     Initialize Investors
     """
-    investors = [Investor(i, wallet, emotion, int(np.random.normal(death_mean, death_sd)), {name: [] for name in stock_names}, ann_mean, ann_sd, num_gen) for i in range(num_ind)]
+    if mutation_config == None:
+        mutation_config = [[0.33,0.1],None,num_gen,[5,10,0],[10,10,0], True, True, True, False, True, True]
+    investors = [Investor(i, wallet, emotion, int(np.random.normal(death_mean, death_sd)), {name: [] for name in stock_names}, ann_mean, ann_sd, num_gen, mutation_config) for i in range(num_ind)]
     return np.array(investors)
 
 
@@ -509,7 +519,7 @@ def assign_initial_shares(investors, stocks, num_directors, stage_threshold):
 # act.reset()
 # print(act)
 
-### Test update_price in Stock and get_stock_data ###
+### Test update_price in Stock and get_stock_data_scope ###
 # market = initialize_stock(1, 5, 30, ["ABC"])
 # s0 = market[0]
 # print(s0.price_history)

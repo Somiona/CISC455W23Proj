@@ -172,7 +172,7 @@ def mutation_transformation(individual, prob_list, best_ind, num_gen, start_gen,
     if learn_peri:
         mu_list.append(Mutation(individual, "periodic", 1, [learn_peri], num_gen, start_gen[2], cycles[2], arguments=[best_ind]))
     if change:
-        mu_list.append(Mutation(individual, "probablistic", prob_list[0], [maybe_i_should_change], arguments=[0.01]))
+        mu_list.append(Mutation(individual, "probablistic", prob_list[0], [maybe_i_should_change], arguments=[0.1]))
     if uncertain:
         mu_list.append(Mutation(individual, "probablistic", prob_list[1], [life_is_uncertain]))
     return mu_list
