@@ -52,6 +52,9 @@ class Share:
         self.update_history()
 
 
+    def __str__(self) -> str:
+        return f'{self.stock.name}:{self.id}'
+
     def __repr__(self) -> str:
         return f'{self.stock.name}:{self.id}-($:{self.price},under:{self.owner})'
 
@@ -121,8 +124,7 @@ class Investor:
         self.death = death
         self.shares = shares
         self.time_to_die = False
-        self.action_history = np.zeros(num_gen)
-        self.action_value = None
+        self.trade_value = False
         self.mutation_list = mutation_transformation(self,[0.33,0.1],None,num_gen,[5,10,0],[10,10,0], True, True, True, False, True, True)
     
 
@@ -146,16 +148,8 @@ class Investor:
             else: # >= 1
                 self.emotion = 1
 
-    def record_action(self, curr_gen, action):
-        """
-        Input: Integer - curr_gen, Integer - action
-        Output: None
-        Description: action meaning - {"halt": 0, "buy": 1, "sell": -1}
-        """
-        self.action_history[curr_gen] += action
-
-    def get_action_value(self, curr_gen):
-        self.action_value = self.action_history[curr_gen]
+    def has_traded(self):
+        self.trade_value = True # For conditional mutation purpose
 
     def decide_action(self, market, curr_gen):
         """
@@ -164,6 +158,7 @@ class Investor:
         Description: Decide Action
         """
         np.random.shuffle(market) # So that every individual will have different order
+        self.trade_value = False  # To reset before deciding action
 
         for stock in market:
             val = self.ann.predict(stock.previous_data) # Predict based on scope of previous data of the stock
@@ -174,31 +169,27 @@ class Investor:
                 if val > self.emotion: # Buy this stock
                     if stock.average_scope * (1 + abs(val)) >= self.wallet:
                         self.action.set_action(1, self.wallet, stock_name=stock.name)
-                        self.record_action(curr_gen, 1)
                     else:
                         self.action.set_action(1, stock.average_scope * (1 + abs(val)), stock_name=stock.name)
-                        self.record_action(curr_gen, 1)
                     return # Since we decide to Buy already
                 else:
                     # Sell
                     if self.shares[stock.name]:
                         share = np.random.choice(self.shares[stock.name])
                         self.action.set_action(2, (1 + abs(val)) * share.price * (1-share.failed_selling/10), stock_share=share)
-                        self.record_action(curr_gen, -1)
                         return # Since we decide to Sell already
                     else:
                         # no shares...
                         continue
         # Since all stocks are halt thus this action is halt
         self.action.set_action(0)
-        self.record_action(curr_gen, 0)
 
     def mutate(self):
         for mutation in self.mutation_list:
             mutation.decide_function()
 
-    def __str__(self) -> str:
-        return f'I{self.name}'
+    # def __str__(self) -> str:
+    #     return f'I{self.name}'
 
     def __repr__(self) -> str:
         return f'I{self.name}-(w:{self.wallet},emo:{self.emotion},age:{self.current},death:{self.death},ttd:{self.time_to_die},shares:{self.shares})'

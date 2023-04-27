@@ -57,9 +57,8 @@ def emotional_damage(individual):
     Output: None
     Description: Decreases the individual's emotional resiliency by a random value between 0 and 1 (bounded between [0, 1])
     """
-    # Subtract a random value between 0 and 1 from emotional resiliency, and clip it to be within the range [0, 1]
-    # individual.emotion = max(0, individual.emotion - np.random.uniform()/5)
-    individual.emotion = max(0, individual.emotion - 0.1)
+    # Subtract a random value between 0 and 0.2 from emotional resiliency, and clip it to be within the range [0, 1]
+    individual.emotion = max(0, individual.emotion - np.random.rand()/5)
 
 
 def emotion_okay_lah(individual):
@@ -68,9 +67,8 @@ def emotion_okay_lah(individual):
     Output: None
     Description: Increase the individual's emotional resiliency by a random value between 0 and 1 (bounded between [0, 1])
     """
-    # Add a random value between 0 and 1 to emotional resiliency, and clip it to be within the range [0, 1]
-    individual.emotion = min(1, individual.emotion + np.random.uniform()/5) 
-    individual.emotion = min(1, individual.emotion + 0.1) 
+    # Add a random value between 0 and 0.2 to emotional resiliency, and clip it to be within the range [0, 1]
+    individual.emotion = min(1, individual.emotion + np.random.rand()/5) 
 
 
 def get_salary(individual, gain_wallet):
@@ -166,7 +164,7 @@ def mutation_transformation(individual, prob_list, best_ind, num_gen, start_gen,
     """
     mu_list = []
     if emo_cond:
-        mu_list.append(Mutation(individual, "Conditional", 1, [emotional_damage, emotion_okay_lah],conditions=[lambda ind: ind.action_value == 0, lambda ind: ind.action_value != 0]))
+        mu_list.append(Mutation(individual, "Conditional", 1, [emotional_damage, emotion_okay_lah],conditions=[lambda ind: not ind.trade_value, lambda ind: ind.trade_value]))
     if sal_peri:
         mu_list.append(Mutation(individual, "periodic", 1, [get_salary], num_gen, start_gen[0], cycles[0], arguments=[np.random.normal(100, 15)]))
     if pay_peri:

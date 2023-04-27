@@ -93,8 +93,6 @@ def action_rundown(k, population, market, curr_gen):
         print("Action:")
         for ind in population:
             print(ind.action)
-        for ind in population:
-            print(ind.emotion)
         print()
 
         # Intraday Trading
@@ -214,9 +212,9 @@ def buy(buyer, seller):
 
 ### Test ea ###
 pop_size        = 20
-wallet          = 1000.0
+wallet          = 500.0
 emotion         = 0.5
-death_mean      = 20
+death_mean      = 100
 death_sd        = 0
 num_directors   = 4
 market_names    = ["ABC", "XYZ"]
@@ -225,11 +223,11 @@ p_stock_mean    = 100
 p_stock_sd      = 20
 scope_length    = 30
 p_share_sd      = 10
-num_gen         = 20
+num_gen         = 100
 k               = 3
 fitness_alpha   = 0.5
-recom_alpha       = 0.05
-recom_beta        = 0.05
+recom_alpha     = 0.05
+recom_beta      = 0.05
 
 market = ea(pop_size, wallet, emotion, death_mean, death_sd, num_directors, market_names, num_shares, p_stock_mean, p_stock_sd, scope_length, p_share_sd, num_gen, k, fitness_alpha, recom_alpha, recom_beta)
 for stock in market:
@@ -245,4 +243,4 @@ for stock in market:
     plt.xlabel("Generation")
     plt.ylabel("Price Data")
     plt.legend(["ABC","XYZ"])
-    plt.savefig(stock.name + ".png")
+plt.savefig("Stock.png")
